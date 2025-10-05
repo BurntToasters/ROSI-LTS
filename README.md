@@ -1,7 +1,11 @@
-# ROSI
-ROSI is an Electron GUI for yt-dlp
+# ROSI-LTS
+### ROSI-LTS is the LTS variant maintining the previous stable version (Currently `v1.x.x`) for ROSI, an Electron GUI for yt-dlp
 
-[<img src="https://get.microsoft.com/images/en-us%20dark.svg" width="200"/>](https://apps.microsoft.com/detail/9p4q134b2jw3?referrer=appbadge&mode=direct) [<img width="150" alt="ROSI" src="https://prod.rosie.run/img/download-for-windows.png"/>](https://github.com/BurntToasters/ROSI/releases/latest/download/ROSI-Windows-x64.exe) [<img width="150" alt="ROSI" src="https://prod.rosie.run/img/download-for-windows-arm64.png"/>](https://github.com/BurntToasters/ROSI/releases/latest/download/ROSI-Windows-arm64.exe) [<img width="150" alt="ROSI" src="https://prod.rosie.run/img/download-for-macos.png"/>](https://github.com/BurntToasters/ROSI/releases/latest/download/ROSI-MacOS-universal.dmg) [<img width="150" alt="ROSI" src="https://prod.rosie.run/img/download-for-linux.png"/>](https://github.com/BurntToasters/ROSI/releases/latest)
+### ℹ️ To download the most recent non-lts release, please go to the [➡️ Main Repo](https://github.com/BurntToasters/ROSI)
+
+*Note: ROSI-LTS does not provide builds for the MS store or AppStore. This is purley binary installers*
+
+[<img width="150" alt="ROSI" src="https://prod.rosie.run/img/download-for-windows.png"/>](https://github.com/BurntToasters/ROSI-LTS/releases/latest/download/ROSI-Windows-x64.exe) [<img width="150" alt="ROSI" src="https://prod.rosie.run/img/download-for-windows-arm64.png"/>](https://github.com/BurntToasters/ROSI-LTS/releases/latest/download/ROSI-Windows-arm64.exe) [<img width="150" alt="ROSI" src="https://prod.rosie.run/img/download-for-macos.png"/>](https://github.com/BurntToasters/ROSI-LTS/releases/latest/download/ROSI-MacOS-universal.dmg) [<img width="150" alt="ROSI" src="https://prod.rosie.run/img/download-for-linux.png"/>](https://github.com/BurntToasters/ROSI-LTS/releases/latest)
 
 <img width="700" alt="ROSI" src="https://github.com/user-attachments/assets/52694114-57a3-487e-837b-6bf5d4960ba3" />
 
@@ -26,14 +30,7 @@ Learn how to install ffmpeg: [https://help.rosie.run/installing-ffmpeg](https://
   - **Fedora:** `sudo dnf install ffmpeg`
   - **Arch:** `sudo pacman -S ffmpeg`
 
-___
-
-## ℹ️ The Microsoft Store version of ROSI is in a seperate repo. The MS store version contains minor changes to be in compliance with the Microsoft Store. 
-**➡️<u>[REPO LINK](https://github.com/BurntToasters/ROSI-msstore)</u>**
-
-___
-
-# Build ROSI from source:
+# Build ROSI-LTS from source:
 
 Download ROSI source code from source (main)
 1) Download zip of release source code (non-release source code are not recommended as they may contain issues not yet fixed for a release).
