@@ -1,0 +1,94 @@
+{
+  "name": "rosi-lts",
+  "version": "1.2.2-LTS",
+  "description": "Electron GUI for yt-dlp",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "electron": "electron .",
+    "build": "electron-builder",
+    "build:win:x64": "electron-builder --win --x64 --config.win.asarUnpack=yt-dlp.exe",
+    "build:win:arm64": "electron-builder --win --arm64 --config.win.asarUnpack=yt-dlp_arm64.exe",
+    "build:mac:universal": "electron-builder --mac --universal",
+    "build:linux": "electron-builder --linux AppImage deb rpm"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/BurntToasters/rosi-lts.git"
+  },
+  "author": "BurntToasters <code@rosie.run>",
+  "license": "MPL-2.0",
+  "bugs": {
+    "url": "https://github.com/BurntToasters/rosi-lts/issues"
+  },
+  "homepage": "https://github.com/BurntToasters/rosi-lts#readme",
+  "devDependencies": {
+    "electron": "^38.2.1",
+    "electron-builder": "^26.0.12"
+  },
+  "dependencies": {
+    "glob": "^11.0.1",
+    "sanitize-filename": "^1.6.3"
+  },
+  "build": {
+    "appId": "com.burnttoasters.rosi-lts",
+    "productName": "Rosi-LTS",
+    "files": [
+      "**/*",
+      "!**/node_modules/*/{test,__tests__,tests}/**",
+      "!**/*.md",
+      "!**/package-devonly.js",
+      "!**/dist"
+    ],
+    "directories": {
+      "output": "dist/${arch}"
+    },
+    "win": {
+      "target": "nsis",
+      "icon": "build/app-icon.ico"
+    },
+    "nsis": {
+      "artifactName": "${productName}-Setup-${version}-${arch}.${ext}"
+    },
+    "mac": {
+      "target": "dmg",
+      "icon": "build/app-icon.icns",
+      "asarUnpack": [
+        "yt-dlp_macos"
+      ]
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "icon": "build/app-icon.png",
+      "category": "Utility",
+      "asarUnpack": [
+        "yt-dlp_linux"
+      ]
+    },
+    "dmg": {
+      "background": "build/dmg-background.png",
+      "icon": "build/app-icon.png",
+      "iconSize": 100,
+      "contents": [
+        {
+          "x": 120,
+          "y": 300,
+          "type": "file"
+        },
+        {
+          "x": 546,
+          "y": 300,
+          "type": "link",
+          "path": "/Applications"
+        }
+      ],
+      "window": {
+        "width": 648,
+        "height": 480
+      }
+    }
+  }
+}
