@@ -5,7 +5,7 @@
 
 *Note: ROSI-LTS does not provide builds for the MS store or AppStore. This is purley binary installers*
 
-This is mainly for people who perfered the previous look of ROSI, or has a current issue with a newlery released major version.
+This is mainly for people who perfered the previous look of ROSI, or has a current issue with a newly released major version.
 
 The LTS version only provides yt-dlp updates and minor bug fixes. No feature additions will happen with LTS versions. Whatever features were added to that version before it became LTS are the last features it will receive.
 
