@@ -1,6 +1,6 @@
 {
   "name": "rosi-lts",
-  "version": "1.2.3-LTS",
+  "version": "1.2.4-LTS",
   "description": "Electron GUI for yt-dlp",
   "main": "main.js",
   "scripts": {
@@ -9,7 +9,7 @@
     "build": "electron-builder",
     "build:win:x64": "electron-builder --win --x64 --config.win.asarUnpack=yt-dlp.exe",
     "build:win:arm64": "electron-builder --win --arm64 --config.win.asarUnpack=yt-dlp_arm64.exe",
-    "build:mac:universal": "electron-builder --mac --universal",
+    "build:mac:universal": "dotenv -e .env -- electron-builder --mac --universal",
     "build:linux": "electron-builder --linux AppImage deb rpm"
   },
   "repository": {
@@ -23,6 +23,7 @@
   },
   "homepage": "https://github.com/BurntToasters/rosi-lts#readme",
   "devDependencies": {
+    "dotenv-cli": "^10.0.0",
     "electron": "^38.2.1",
     "electron-builder": "^26.0.12"
   },
