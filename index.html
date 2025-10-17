@@ -275,14 +275,14 @@
     }
   }
 
-  // handles download button logic, triggers download, manages loader/cancel
   let isDownloading = false;
   let downloadAbort = null;
 
-  // Version compare helper
   function compareVersions(a, b) {
-    const pa = a.split('.').map(Number);
-    const pb = b.split('.').map(Number);
+    const cleanA = a.split('-')[0];
+    const cleanB = b.split('-')[0];
+    const pa = cleanA.split('.').map(Number);
+    const pb = cleanB.split('.').map(Number);
     for (let i = 0; i < Math.max(pa.length, pb.length); i++) {
       const na = pa[i] || 0, nb = pb[i] || 0;
       if (na > nb) return 1;
@@ -291,7 +291,7 @@
     return 0;
   }
 
-  // Check for updates function
+  // Check for updates
   async function checkForUpdates() {
     try {
       const res = await fetch('https://api.github.com/repos/BurntToasters/ROSI-LTS/releases/latest', {
