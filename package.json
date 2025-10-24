@@ -1,6 +1,6 @@
 {
   "name": "rosi-lts",
-  "version": "1.2.7-LTS",
+  "version": "1.2.6-LTS",
   "description": "Electron GUI for yt-dlp",
   "main": "main.js",
   "scripts": {
@@ -72,6 +72,15 @@
       "asarUnpack": [
         "yt-dlp_linux"
       ]
+    },
+    "deb": {
+      "artifactName": "${productName}-Linux-${arch}.${ext}"
+    },
+    "rpm": {
+      "artifactName": "${productName}-Linux-${arch}.${ext}"
+    },
+    "appImage": {
+      "artifactName": "${productName}-Linux-${arch}.${ext}"
     }
   }
 }
