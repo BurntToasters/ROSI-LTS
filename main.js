@@ -51,7 +51,8 @@ const defaultSettings = {
   keepOriginalAfterConvert: true,
   firstLaunch: true,
   hookBrowser: false,
-  browserChoice: "Chrome"
+  browserChoice: "Chrome",
+  dontRemindDeno: false
 };
 
 // [!] The console debugger uses emojis to easily identify messages. If you see any issues with emojis, please ensure your terminal supports them or disable the console output in settings.
@@ -84,6 +85,45 @@ function saveSettings(newSettings) {
   }
 }
 
+function checkDenoInstalled() {
+  return new Promise((resolve) => {
+    const denoCheck = spawn('deno', ['--version']);
+    denoCheck.on('error', () => resolve(false));
+    denoCheck.on('exit', (code) => resolve(code === 0));
+  });
+}
+
+function installDeno() {
+  return new Promise((resolve, reject) => {
+    let installProcess;
+    if (isWindows) {
+      installProcess = spawn('powershell.exe', ['-Command', 'irm https://deno.land/install.ps1 | iex']);
+    } else {
+      installProcess = spawn('sh', ['-c', 'curl -fsSL https://deno.land/install.sh | sh']);
+    }
+    
+    let output = '';
+    installProcess.stdout?.on('data', (data) => {
+      output += data.toString();
+    });
+    installProcess.stderr?.on('data', (data) => {
+      output += data.toString();
+    });
+    
+    installProcess.on('error', (err) => {
+      reject(new Error(`Failed to start installation: ${err.message}`));
+    });
+    
+    installProcess.on('exit', (code) => {
+      if (code === 0) {
+        resolve(output);
+      } else {
+        reject(new Error(`Installation failed with code ${code}: ${output}`));
+      }
+    });
+  });
+}
+
 let mainWindow = null;
 
 // create main window, set icon, menu bar, devtools
@@ -107,6 +147,16 @@ function createWindow() {
   mainWindow.setAutoHideMenuBar(!showMenu);
   mainWindow.on('closed', () => {
     mainWindow = null;
+  });
+  
+  mainWindow.webContents.on('did-finish-load', async () => {
+    const settings = loadSettings();
+    if (!settings.dontRemindDeno) {
+      const denoInstalled = await checkDenoInstalled();
+      if (!denoInstalled) {
+        mainWindow.webContents.send('show-deno-prompt');
+      }
+    }
   });
 }
 
@@ -147,6 +197,25 @@ ipcMain.handle('select-download-location', async () => {
     properties: ['openDirectory', 'createDirectory']
   });
   return canceled ? null : filePaths[0];
+});
+
+ipcMain.handle('check-deno', async () => {
+  return await checkDenoInstalled();
+});
+
+ipcMain.handle('install-deno', async () => {
+  try {
+    await installDeno();
+    const isInstalled = await checkDenoInstalled();
+    return { success: isInstalled, message: isInstalled ? 'Deno installed successfully' : 'Installation completed but deno not detected' };
+  } catch (error) {
+    return { success: false, message: error.message };
+  }
+});
+
+ipcMain.on('dismiss-deno-reminder', () => {
+  const currentSettings = loadSettings();
+  saveSettings({ ...currentSettings, dontRemindDeno: true });
 });
 
 // get available formats from yt-dlp

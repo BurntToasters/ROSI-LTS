@@ -576,6 +576,53 @@
       window.api.saveSettings(settings);
     }
   });
+
+  window.api.onShowDenoPrompt(() => {
+    showDenoModal();
+  });
+
+  async function showDenoModal() {
+    showModal({
+      title: "Deno Required for Full YouTube Functionality",
+      message: "yt-dlp now requires Deno for full YouTube support. Would you like to install it?",
+      buttons: [
+        {
+          label: "Install",
+          action: async () => {
+            const installBtn = document.querySelector('#modal-buttons button:nth-child(1)');
+            if (installBtn) {
+              installBtn.disabled = true;
+              installBtn.textContent = "Installing...";
+            }
+            const result = await window.api.installDeno();
+            if (result.success) {
+              showModal({
+                title: "Installation Complete",
+                message: "Deno has been installed successfully. You may need to restart the application for changes to take effect.",
+                buttons: [{ label: "OK" }]
+              });
+            } else {
+              showModal({
+                title: "Installation Failed",
+                message: `Failed to install Deno: ${result.message}`,
+                buttons: [{ label: "OK" }]
+              });
+            }
+          }
+        },
+        {
+          label: "Later",
+          action: () => {}
+        },
+        {
+          label: "Don't remind me",
+          action: () => {
+            window.api.dismissDenoReminder();
+          }
+        }
+      ]
+    });
+  }
 </script>
 </body>
 </html>

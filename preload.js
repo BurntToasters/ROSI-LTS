@@ -42,6 +42,12 @@ contextBridge.exposeInMainWorld('api', {
   // get application version
   getAppVersion: () => ipcRenderer.invoke('get-app-version'),
 
+  checkDeno: () => ipcRenderer.invoke('check-deno'),
+
+  installDeno: () => ipcRenderer.invoke('install-deno'),
+
+  dismissDenoReminder: () => ipcRenderer.send('dismiss-deno-reminder'),
+
   // listen for progress messages from main
   onProgress: (callback) => {
     const listener = (_, message) => callback(message);
@@ -52,5 +58,10 @@ contextBridge.exposeInMainWorld('api', {
   onComplete: (callback) => {
     const listener = (_, message) => callback(message);
     ipcRenderer.on('complete', listener);
+  },
+
+  onShowDenoPrompt: (callback) => {
+    const listener = () => callback();
+    ipcRenderer.on('show-deno-prompt', listener);
   },
 });
