@@ -297,10 +297,22 @@
       const res = await fetch('https://api.github.com/repos/BurntToasters/ROSI-LTS/releases/latest', {
         headers: { 'User-Agent': 'ROSI-Updater' }
       });
-      if (!res.ok) throw new Error('Failed to fetch release info');
+      if (!res.ok) {
+        console.error('GitHub API response not OK:', res.status, res.statusText);
+        throw new Error(`Failed to fetch release info: ${res.status}`);
+      }
       const release = await res.json();
+      
+      if (!release.tag_name) {
+        console.error('No tag_name in release:', release);
+        throw new Error('Invalid release data');
+      }
+
       const latestVersion = release.tag_name.replace(/^v/, '');
       const currentVersion = await window.api.getAppVersion();
+      
+      console.log('Update check:', { latestVersion, currentVersion, comparison: compareVersions(latestVersion, currentVersion) });
+
       if (compareVersions(latestVersion, currentVersion) > 0) {
         showModal({
           title: "Update Available!",
@@ -318,9 +330,10 @@
         });
       }
     } catch (e) {
+      console.error('Update check error:', e);
       showModal({
         title: "Update Check Failed",
-        message: "Could not check for updates. Please try again later.",
+        message: `Could not check for updates. ${e.message || 'Please try again later.'}`,
         buttons: [{ label: "OK" }]
       });
     }
