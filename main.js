@@ -87,7 +87,14 @@ function saveSettings(newSettings) {
 
 function checkDenoInstalled() {
   return new Promise((resolve) => {
-    const denoCheck = spawn('deno', ['--version']);
+    const denoCheck = spawn('deno', ['--version'], { 
+      shell: true,
+      env: { 
+        ...process.env,
+        PATH: process.env.PATH + 
+          (isWindows ? `;${process.env.USERPROFILE}\\.deno\\bin` : `:${process.env.HOME}/.deno/bin:/opt/homebrew/bin:/usr/local/bin`)
+      }
+    });
     denoCheck.on('error', () => resolve(false));
     denoCheck.on('exit', (code) => resolve(code === 0));
   });
