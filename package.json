@@ -59,7 +59,7 @@
       ]
     },
     "nsis": {
-      "artifactName": "ROSI-LTS-Windows-${arch}.${ext}"
+      "artifactName": "Rosi-LTS-Windows-${arch}.${ext}"
     },
     "mac": {
       "target": "dmg",
@@ -81,16 +81,16 @@
       ]
     },
     "appImage": {
-      "artifactName": "ROSI-LTS-linux.${ext}"
+      "artifactName": "Rosi-LTS-Linux-${arch}.${ext}"
     },
     "deb": {
-      "artifactName": "ROSI-LTS-linux_${arch}.${ext}"
+      "artifactName": "Rosi-LTS-Linux-${arch}.${ext}"
     },
     "rpm": {
-      "artifactName": "ROSI-LTS-linux.${arch}.${ext}"
+      "artifactName": "Rosi-LTS-Linux-${arch}.${ext}"
     },
     "dmg": {
-      "artifactName": "ROSI-LTS-MacOS-universal.${ext}",
+      "artifactName": "Rosi-LTS-MacOS-universal.${ext}",
       "background": "build/dmg-background.png",
       "icon": "build/app-icon.png",
       "iconSize": 100,
