@@ -1,5 +1,5 @@
 # ROSI-LTS
-### ROSI-LTS is the LTS variant maintining the previous stable version (Currently `v1.x.x`) for ROSI, an Electron GUI for yt-dlp
+### ROSI-LTS is the LTS variant maintining the previous stable version (Currently `v2.x.x`) for ROSI, an Electron GUI for yt-dlp
 
 ### ℹ️ To download the most recent non-lts release, please go to the [➡️ Main Repo](https://github.com/BurntToasters/ROSI)
 
@@ -17,7 +17,7 @@ ___
 
 # LICENSES
 
-- Rosi includes the official YT-DLP binary which on its own uses the [unlicense] license, however there are bundled third party packages. Read [THIRD‑PARTY‑NOTICES](THIRD‑PARTY‑NOTICES.md) for more.
+- ROSI-LTS includes the official YT-DLP binary which on its own uses the [unlicense] license, however there are bundled third party packages. Read [THIRD‑PARTY‑NOTICES](THIRD‑PARTY‑NOTICES.md) for more.
 - Please make sure to also read the [license](LICENSE) for the source of this project (excluding third part binaries and packages).
 
 ___

@@ -1,5 +1,3 @@
-// main.js
-
 const { app, BrowserWindow, ipcMain, dialog, shell } = require('electron');
 const path = require('path');
 const fs = require('fs');
@@ -18,8 +16,26 @@ const ytdlpBinary = isWindows
 
 let ytdlpPath;
 if (isPackaged) {
-  // Use asarUnpack location
-  ytdlpPath = path.join(process.resourcesPath, 'app.asar.unpacked', ytdlpBinary);
+  const possiblePaths = [
+    path.join(process.resourcesPath, 'app.asar.unpacked', ytdlpBinary),
+    path.join(process.resourcesPath, ytdlpBinary),
+    path.join(__dirname, '..', ytdlpBinary),
+    path.join(__dirname, ytdlpBinary)
+  ];
+  
+  for (const tryPath of possiblePaths) {
+    console.log(`Trying yt-dlp path: ${tryPath}`);
+    if (fs.existsSync(tryPath)) {
+      ytdlpPath = tryPath;
+      console.log(`Found yt-dlp at: ${ytdlpPath}`);
+      break;
+    }
+  }
+  
+  if (!ytdlpPath) {
+    console.error(`Could not find ${ytdlpBinary} in any expected location`);
+    ytdlpPath = path.join(process.resourcesPath, 'app.asar.unpacked', ytdlpBinary); // Default for error reporting
+  }
 } else {
   // DEV
   ytdlpPath = path.join(__dirname, ytdlpBinary);
@@ -40,6 +56,7 @@ if (!fs.existsSync(ytdlpPath)) {
     app.quit();
 }
 
+
 ipcMain.handle('get-app-version', () => app.getVersion());
 
 const settingsPath = path.join(app.getPath('userData'), 'settings.json');
@@ -52,7 +69,8 @@ const defaultSettings = {
   firstLaunch: true,
   hookBrowser: false,
   browserChoice: "Chrome",
-  dontRemindDeno: false
+  animateBackground: true,
+  denoReminderDismissed: false
 };
 
 // [!] The console debugger uses emojis to easily identify messages. If you see any issues with emojis, please ensure your terminal supports them or disable the console output in settings.
@@ -85,53 +103,26 @@ function saveSettings(newSettings) {
   }
 }
 
-function checkDenoInstalled() {
-  return new Promise((resolve) => {
-    const denoCheck = spawn('deno', ['--version'], { 
-      shell: true,
-      env: { 
-        ...process.env,
-        PATH: process.env.PATH + 
-          (isWindows ? `;${process.env.USERPROFILE}\\.deno\\bin` : `:${process.env.HOME}/.deno/bin:/opt/homebrew/bin:/usr/local/bin`)
-      }
-    });
-    denoCheck.on('error', () => resolve(false));
-    denoCheck.on('exit', (code) => resolve(code === 0));
-  });
-}
-
-function installDeno() {
-  return new Promise((resolve, reject) => {
-    let installProcess;
-    if (isWindows) {
-      installProcess = spawn('powershell.exe', ['-Command', 'irm https://deno.land/install.ps1 | iex']);
-    } else {
-      installProcess = spawn('sh', ['-c', 'curl -fsSL https://deno.land/install.sh | sh']);
-    }
-    
-    let output = '';
-    installProcess.stdout?.on('data', (data) => {
-      output += data.toString();
-    });
-    installProcess.stderr?.on('data', (data) => {
-      output += data.toString();
-    });
-    
-    installProcess.on('error', (err) => {
-      reject(new Error(`Failed to start installation: ${err.message}`));
-    });
-    
-    installProcess.on('exit', (code) => {
-      if (code === 0) {
-        resolve(output);
-      } else {
-        reject(new Error(`Installation failed with code ${code}: ${output}`));
-      }
-    });
-  });
-}
-
 let mainWindow = null;
+let splashWindow = null;
+
+function createSplashWindow() {
+  splashWindow = new BrowserWindow({
+    width: 360,
+    height: 360,
+    transparent: true,
+    frame: false,
+    alwaysOnTop: true,
+    icon: path.join(__dirname, 'app.png'),
+    webPreferences: {
+      contextIsolation: true,
+      nodeIntegration: false
+    },
+    roundedCorners: true
+  });
+  splashWindow.loadFile('splash.html');
+  splashWindow.center();
+}
 
 // create main window, set icon, menu bar, devtools
 function createWindow() {
@@ -139,6 +130,10 @@ function createWindow() {
   mainWindow = new BrowserWindow({
     width: 1000,
     height: 700,
+    minWidth: 800,
+    minHeight: 650,
+    maxWidth: 1400,
+    maxHeight: 1000,
     icon: path.join(__dirname, 'app.png'),
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
@@ -146,32 +141,164 @@ function createWindow() {
       nodeIntegration: false,
       spellcheck: false,
       devTools: isDev,
-    }
+    },
+    autoHideMenuBar: !isDev,
+    menuBarVisible: isDev,
+    show: false // Don't show window until ready
   });
   mainWindow.loadFile('index.html');
-  const showMenu = process.argv.includes('--show-menu');
-  mainWindow.setMenuBarVisibility(showMenu);
-  mainWindow.setAutoHideMenuBar(!showMenu);
-  mainWindow.on('closed', () => {
-    mainWindow = null;
-  });
   
-  mainWindow.webContents.on('did-finish-load', async () => {
-    const settings = loadSettings();
-    if (!settings.dontRemindDeno) {
-      const denoInstalled = await checkDenoInstalled();
-      if (!denoInstalled) {
-        mainWindow.webContents.send('show-deno-prompt');
+  mainWindow.setMenuBarVisibility(isDev);
+  mainWindow.setAutoHideMenuBar(!isDev);
+
+  if (!isDev) {
+    mainWindow.removeMenu();
+  }
+  
+  // When main window is ready, close splash and show main window
+  mainWindow.once('ready-to-show', () => {
+    setTimeout(() => {
+      if (splashWindow && !splashWindow.isDestroyed()) {
+        splashWindow.close();
+        splashWindow = null;
       }
-    }
+      if (mainWindow && !mainWindow.isDestroyed()) {
+        mainWindow.show();
+        mainWindow.focus();
+      }
+    }, 800); // Small delay for smoother transition
   });
 }
 
-app.whenReady().then(createWindow);
+// First show splash, then create main window
+app.whenReady().then(() => {
+  createSplashWindow();
+  setTimeout(() => {
+    createWindow();
+  }, 300); // Small delay to ensure splash shows first
+});
+
 app.on('window-all-closed', () => { if (process.platform !== 'darwin') app.quit(); });
 app.on('activate', () => { if (BrowserWindow.getAllWindows().length === 0) createWindow(); });
 
 // --- IPC Handlers ---
+
+
+ipcMain.handle('check-deno-installed', async () => {
+  return new Promise((resolve) => {
+    const commonPaths = [];
+    
+    if (isWindows) {
+      const userProfile = process.env.USERPROFILE || '';
+      const localAppData = process.env.LOCALAPPDATA || '';
+      commonPaths.push(
+        path.join(userProfile, '.deno', 'bin', 'deno.exe'),
+        path.join(localAppData, 'deno', 'bin', 'deno.exe'),
+        'C:\\Program Files\\deno\\deno.exe',
+        'C:\\deno\\deno.exe'
+      );
+    } else {
+      const homeDir = process.env.HOME || '';
+      commonPaths.push(
+        path.join(homeDir, '.deno', 'bin', 'deno'),
+        '/usr/local/bin/deno',
+        '/opt/homebrew/bin/deno',
+        '/usr/bin/deno',
+        '/home/linuxbrew/.linuxbrew/bin/deno',
+        path.join(homeDir, '.local', 'bin', 'deno')
+      );
+    }
+
+    for (const denoPath of commonPaths) {
+      if (fs.existsSync(denoPath)) {
+        resolve(true);
+        return;
+      }
+    }
+
+    const checkCmd = isWindows ? 'where' : 'which';
+    const spawnOptions = {};
+    
+    if (isWindows) {
+      const userProfile = process.env.USERPROFILE || '';
+      const localAppData = process.env.LOCALAPPDATA || '';
+      const enhancedPath = [
+        path.join(userProfile, '.deno', 'bin'),
+        path.join(localAppData, 'deno', 'bin'),
+        'C:\\Program Files\\deno',
+        'C:\\deno',
+        process.env.PATH || ''
+      ].join(';');
+      
+      spawnOptions.env = { ...process.env, PATH: enhancedPath };
+    } else {
+      const homeDir = process.env.HOME || '';
+      const enhancedPath = [
+        path.join(homeDir, '.deno', 'bin'),
+        '/usr/local/bin',
+        '/opt/homebrew/bin',
+        '/usr/bin',
+        '/home/linuxbrew/.linuxbrew/bin',
+        path.join(homeDir, '.local', 'bin'),
+        process.env.PATH || ''
+      ].join(':');
+      
+      spawnOptions.env = { ...process.env, PATH: enhancedPath };
+    }
+    
+    const proc = spawn(checkCmd, ['deno'], spawnOptions);
+    
+    proc.on('close', (code) => {
+      resolve(code === 0);
+    });
+    
+    proc.on('error', () => {
+      resolve(false);
+    });
+  });
+});
+
+ipcMain.handle('install-deno', async () => {
+  return new Promise((resolve, reject) => {
+    let installCmd, installArgs, spawnOptions;
+    
+    if (isWindows) {
+      // Windows: irm https://deno.land/install.ps1 | iex
+      installCmd = 'powershell.exe';
+      installArgs = ['-ExecutionPolicy', 'Bypass', '-Command', 'irm https://deno.land/install.ps1 | iex'];
+      spawnOptions = {};
+    } else {
+      // Mac/Linux: curl -fsSL https://deno.land/install.sh | sh
+      installCmd = 'sh';
+      installArgs = ['-c', 'curl -fsSL https://deno.land/install.sh | sh'];
+      spawnOptions = {};
+    }
+    
+    const proc = spawn(installCmd, installArgs, spawnOptions);
+    let output = '';
+    let error = '';
+    
+    proc.stdout.on('data', (data) => {
+      output += data.toString();
+    });
+    
+    proc.stderr.on('data', (data) => {
+      error += data.toString();
+    });
+    
+    proc.on('close', (code) => {
+      if (code === 0) {
+        resolve({ success: true, output });
+      } else {
+        reject({ success: false, error: error || output });
+      }
+    });
+    
+    proc.on('error', (err) => {
+      reject({ success: false, error: err.message });
+    });
+  });
+});
 
 // get settings from file
 ipcMain.handle('get-settings', () => loadSettings());
@@ -206,25 +333,6 @@ ipcMain.handle('select-download-location', async () => {
   return canceled ? null : filePaths[0];
 });
 
-ipcMain.handle('check-deno', async () => {
-  return await checkDenoInstalled();
-});
-
-ipcMain.handle('install-deno', async () => {
-  try {
-    await installDeno();
-    const isInstalled = await checkDenoInstalled();
-    return { success: isInstalled, message: isInstalled ? 'Deno installed successfully' : 'Installation completed but deno not detected' };
-  } catch (error) {
-    return { success: false, message: error.message };
-  }
-});
-
-ipcMain.on('dismiss-deno-reminder', () => {
-  const currentSettings = loadSettings();
-  saveSettings({ ...currentSettings, dontRemindDeno: true });
-});
-
 // get available formats from yt-dlp
 ipcMain.handle('getFormats', async (_, url) => {
     if (!url || typeof url !== 'string') {
@@ -257,7 +365,7 @@ ipcMain.handle('getFormats', async (_, url) => {
 let ytdlpProcess = null;
 let ffmpegProcess = null;
 
-// handle download-video, spawn yt-dlp, handle conversion, send progress
+// handle download-video, spawn yt-dlp
 ipcMain.on('download-video', async (event, options) => {
   if (ytdlpProcess) {
     ytdlpProcess.kill();
@@ -358,7 +466,7 @@ ipcMain.on('download-video', async (event, options) => {
           return;
       }
 
-      // if convert is enabled, run ffmpeg
+      // if convert enabled, run ffmpeg
       if (currentSettings.convertEnabled) {
         safeSend('progress', '⏳ Checking if conversion is needed...');
         try {
@@ -366,7 +474,7 @@ ipcMain.on('download-video', async (event, options) => {
           const sanitizedFileName = sanitize(path.basename(originalInputPath));
           const sanitizedInputPath = path.join(path.dirname(originalInputPath), sanitizedFileName);
 
-          // Rename the downloaded file to the sanitized version
+          // Rename downloaded file -> sanitized version
           if (originalInputPath !== sanitizedInputPath) {
             fs.renameSync(originalInputPath, sanitizedInputPath);
             safeSend('progress', `Renamed to sanitized filename: ${sanitizedFileName}`);
@@ -513,5 +621,3 @@ ipcMain.handle('restart-app', () => {
   app.relaunch();
   app.exit(0);
 });
-
-// --- End main.js ---

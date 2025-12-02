@@ -1,6 +1,6 @@
 {
   "name": "rosi-lts",
-  "version": "1.3.1-LTS",
+  "version": "2.2.3-LTS",
   "description": "Electron GUI for yt-dlp",
   "main": "main.js",
   "scripts": {
@@ -10,30 +10,36 @@
     "build:win:x64": "electron-builder --win --x64 --config.win.asarUnpack=yt-dlp.exe",
     "build:win:arm64": "electron-builder --win --arm64 --config.win.asarUnpack=yt-dlp_arm64.exe",
     "build:mac:universal": "dotenv -e .env -- electron-builder --mac --universal",
-    "build:linux": "electron-builder --linux AppImage deb rpm"
+    "build:linux": "electron-builder --linux AppImage deb rpm",
+    "build:github": "dotenv -e .env -- cross-env CHANNEL=github electron-builder -c electron-builder.base.yml -c electron-builder.github.yml",
+    "build:msstore:x64": "cross-env CHANNEL=msstore node build-scripts/prepare-x64.js && electron-builder --win --x64 -c electron-builder.base.yml -c electron-builder.msstore.yml",
+    "build:msstore:arm64": "cross-env CHANNEL=msstore node build-scripts/prepare-arm64.js && electron-builder --win --arm64 -c electron-builder.base.yml -c electron-builder.msstore.yml",
+    "build:msstore": "npm run build:msstore:x64 && npm run build:msstore:arm64"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/BurntToasters/rosi-lts.git"
+    "url": "git+https://github.com/BurntToasters/ROSI-LTS.git"
   },
   "author": "BurntToasters <code@rosie.run>",
   "license": "MPL-2.0",
   "bugs": {
-    "url": "https://github.com/BurntToasters/rosi-lts/issues"
+    "url": "https://github.com/BurntToasters/ROSI-LTS/issues"
   },
-  "homepage": "https://github.com/BurntToasters/rosi-lts#readme",
+  "homepage": "https://github.com/BurntToasters/ROSI-LTS#readme",
   "devDependencies": {
+    "cross-env": "^10.1.0",
     "dotenv-cli": "^10.0.0",
-    "electron": "^39.2.2",
-    "electron-builder": "^26.0.12"
+    "electron": "^39.0.0",
+    "electron-builder": "^26.0.12",
+    "js-yaml": "^4.1.0"
   },
   "dependencies": {
-    "glob": "^11.0.1",
+    "glob": "^11.1.0",
     "sanitize-filename": "^1.6.3"
   },
   "build": {
     "appId": "com.burnttoasters.rosi-lts",
-    "productName": "Rosi-LTS",
+    "productName": "ROSI-LTS",
     "files": [
       "**/*",
       "!**/node_modules/*/{test,__tests__,tests}/**",
@@ -46,10 +52,14 @@
     },
     "win": {
       "target": "nsis",
-      "icon": "build/app-icon.ico"
+      "icon": "build/app-icon.ico",
+      "asarUnpack": [
+        "yt-dlp.exe",
+        "yt-dlp_arm64.exe"
+      ]
     },
     "nsis": {
-      "artifactName": "${productName}-Windows-${arch}.${ext}"
+      "artifactName": "ROSI-LTS-Windows-${arch}.${ext}"
     },
     "mac": {
       "target": "dmg",
@@ -57,9 +67,6 @@
       "asarUnpack": [
         "yt-dlp_macos"
       ]
-    },
-    "dmg": {
-      "artifactName": "${productName}-MacOS-${arch}.${ext}"
     },
     "linux": {
       "target": [
@@ -73,14 +80,37 @@
         "yt-dlp_linux"
       ]
     },
+    "appImage": {
+      "artifactName": "ROSI-LTS-linux.${ext}"
+    },
     "deb": {
-      "artifactName": "${productName}-Linux-${arch}.${ext}"
+      "artifactName": "ROSI-LTS-linux_${arch}.${ext}"
     },
     "rpm": {
-      "artifactName": "${productName}-Linux-${arch}.${ext}"
+      "artifactName": "ROSI-LTS-linux.${arch}.${ext}"
     },
-    "appImage": {
-      "artifactName": "${productName}-Linux-${arch}.${ext}"
+    "dmg": {
+      "artifactName": "ROSI-LTS-MacOS-universal.${ext}",
+      "background": "build/dmg-background.png",
+      "icon": "build/app-icon.png",
+      "iconSize": 100,
+      "contents": [
+        {
+          "x": 120,
+          "y": 300,
+          "type": "file"
+        },
+        {
+          "x": 546,
+          "y": 300,
+          "type": "link",
+          "path": "/Applications"
+        }
+      ],
+      "window": {
+        "width": 648,
+        "height": 480
+      }
     }
   }
 }
