@@ -11,7 +11,7 @@ The LTS version only provides yt-dlp updates and minor bug fixes. No feature add
 
 [<img width="150" alt="ROSI" src="https://prod.rosie.run/img/download-for-windows.png"/>](https://github.com/BurntToasters/ROSI-LTS/releases/latest/download/ROSI-LTS-Windows-x64.exe) [<img width="150" alt="ROSI" src="https://prod.rosie.run/img/download-for-windows-arm64.png"/>](https://github.com/BurntToasters/ROSI-LTS/releases/latest/download/ROSI-LTS-Windows-arm64.exe) [<img width="150" alt="ROSI" src="https://prod.rosie.run/img/download-for-macos.png"/>](https://github.com/BurntToasters/ROSI-LTS/releases/latest/download/ROSI-LTS-MacOS-universal.dmg) [<img width="150" alt="ROSI" src="https://prod.rosie.run/img/download-for-linux.png"/>](https://github.com/BurntToasters/ROSI-LTS/releases/latest)
 
-<img width="700" alt="ROSI" src="https://github.com/user-attachments/assets/52694114-57a3-487e-837b-6bf5d4960ba3" />
+<img width="700" alt="ROSI" src="https://prod.rosie.run/img/rosi/ROSI.png" />
 
 ___
 
