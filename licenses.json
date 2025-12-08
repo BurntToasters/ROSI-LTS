@@ -65,6 +65,12 @@
         "licenseUrl": "https://github.com/electron/windows-sign/raw/master/LICENSE",
         "parents": "rosi-lts"
     },
+    "@epic-web/invariant@1.0.0": {
+        "licenses": "MIT",
+        "repository": "https://github.com/epicweb-dev/invariant",
+        "licenseUrl": "https://github.com/epicweb-dev/invariant",
+        "parents": "rosi-lts"
+    },
     "@gar/promisify@1.1.3": {
         "licenses": "MIT",
         "repository": "https://github.com/wraithgar/gar-promisify",
@@ -507,6 +513,12 @@
         "licenseUrl": "https://github.com/JumpLink/cross-dirname",
         "parents": "rosi-lts"
     },
+    "cross-env@10.1.0": {
+        "licenses": "MIT",
+        "repository": "https://github.com/kentcdodds/cross-env",
+        "licenseUrl": "https://github.com/kentcdodds/cross-env/raw/master/LICENSE",
+        "parents": "rosi-lts"
+    },
     "cross-spawn@7.0.6": {
         "licenses": "MIT",
         "repository": "https://github.com/moxystudio/node-cross-spawn",
@@ -645,7 +657,7 @@
         "licenseUrl": "https://github.com/electron/windows-installer/raw/master/LICENSE",
         "parents": "rosi-lts"
     },
-    "electron@39.2.2": {
+    "electron@39.2.4": {
         "licenses": "MIT",
         "repository": "https://github.com/electron/electron",
         "licenseUrl": "https://github.com/electron/electron/raw/master/LICENSE",
@@ -1173,10 +1185,10 @@
         "licenseUrl": "https://github.com/isaacs/node-lru-cache/raw/master/LICENSE",
         "parents": "config-file-ts:rosi-lts"
     },
-    "lru-cache@11.2.2": {
-        "licenses": "ISC",
+    "lru-cache@11.2.4": {
+        "licenses": "BlueOak-1.0.0",
         "repository": "https://github.com/isaacs/node-lru-cache",
-        "licenseUrl": "https://github.com/isaacs/node-lru-cache/raw/master/LICENSE",
+        "licenseUrl": "https://github.com/isaacs/node-lru-cache/raw/master/LICENSE.md",
         "parents": "path-scurry:rosi-lts"
     },
     "lru-cache@6.0.0": {
@@ -1583,10 +1595,10 @@
         "licenseUrl": "https://github.com/gajus/roarr/raw/master/LICENSE",
         "parents": "rosi-lts"
     },
-    "rosi-lts@1.3.1-LTS": {
+    "rosi-lts@2.2.3-LTS": {
         "licenses": "MPL-2.0",
-        "repository": "https://github.com/BurntToasters/rosi-lts",
-        "licenseUrl": "https://github.com/BurntToasters/rosi-lts/raw/master/LICENSE",
+        "repository": "https://github.com/BurntToasters/ROSI-LTS",
+        "licenseUrl": "https://github.com/BurntToasters/ROSI-LTS/raw/master/LICENSE",
         "parents": "UNDEFINED"
     },
     "safe-buffer@5.2.1": {
