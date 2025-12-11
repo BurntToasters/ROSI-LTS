@@ -230,8 +230,8 @@ function testmsg () {
   // Check updates
   async function checkForUpdates() {
     try {
-      const res = await fetch('https://api.github.com/repos/BurntToasters/ROSI/releases/latest', {
-        headers: { 'User-Agent': 'ROSI-Updater' }
+      const res = await fetch('https://api.github.com/repos/BurntToasters/ROSI-LTS/releases/latest', {
+        headers: { 'User-Agent': 'ROSI-LTS-Updater' }
       });
       if (!res.ok) throw new Error('Failed to fetch release info');
       const release = await res.json();
@@ -240,7 +240,7 @@ function testmsg () {
       if (compareVersions(latestVersion, currentVersion) > 0) {
         showModal({
           title: "Update Available!",
-          message: `A new version (v${latestVersion}) of ROSI is available!`,
+          message: `A new version (v${latestVersion}) of ROSI-LTS is available!`,
           buttons: [
             { label: "Update", action: () => window.api.openExternal(release.html_url) },
             { label: "No thanks" }
@@ -248,7 +248,7 @@ function testmsg () {
         });
       } else {
         showModal({
-          title: "ROSI is up to date!",
+          title: "ROSI-LTS is up to date!",
           message: `You are running the latest version (v${currentVersion}).`,
           buttons: [{ label: "OK" }]
         });
