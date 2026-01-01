@@ -11,7 +11,7 @@
     "build:win:arm64": "electron-builder --win --arm64 --config.win.asarUnpack=yt-dlp_arm64.exe",
     "build:mac:universal": "dotenv -e .env -- electron-builder --mac --universal",
     "build:linux": "electron-builder --linux AppImage deb rpm",
-    "build:linux:native": "cross-env USE_SYSTEM_FPM=true electron-builder --linux AppImage deb rpm",
+    "build:linux:native": "cross-env USE_SYSTEM_FPM=true electron-builder --linux --x64 AppImage deb rpm",
     "build:github": "dotenv -e .env -- cross-env CHANNEL=github electron-builder -c electron-builder.base.yml -c electron-builder.github.yml",
     "build:msstore:x64": "cross-env CHANNEL=msstore node build-scripts/prepare-x64.js && electron-builder --win --x64 -c electron-builder.base.yml -c electron-builder.msstore.yml",
     "build:msstore:arm64": "cross-env CHANNEL=msstore node build-scripts/prepare-arm64.js && electron-builder --win --arm64 -c electron-builder.base.yml -c electron-builder.msstore.yml",
