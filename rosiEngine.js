@@ -205,8 +205,12 @@
 
   // Version compare helper
   function compareVersions(a, b) {
-    const pa = a.split('.').map(Number);
-    const pb = b.split('.').map(Number);
+    const parsePart = (part) => {
+      const match = String(part).match(/^(\d+)/);
+      return match ? Number(match[1]) : 0;
+    };
+    const pa = a.split('.').map(parsePart);
+    const pb = b.split('.').map(parsePart);
     for (let i = 0; i < Math.max(pa.length, pb.length); i++) {
       const na = pa[i] || 0, nb = pb[i] || 0;
       if (na > nb) return 1;
