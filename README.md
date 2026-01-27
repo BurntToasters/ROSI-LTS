@@ -1,4 +1,11 @@
 # ROSI-LTS
+### [1/26/25] Important note: LTS Development is on pause.
+[ROSI v3](https://github.com/BurntToasters/ROSI) introduced a lot of development QOL for me and maintaining the older `v2` codebase is a lot of extra work for me right now as I do this work in my free time.
+* **When will ROSI-LTS be back?**
+  * After the release of ROSI `v4`
+* **What can I do while I wait for ROSI-LTS to resume development?**
+  * You can manualy update the yt-dlp binary for your operating systems by navigating into `ROSI-LTS`'s folder and looking for the app.asar unpacked folder.
+
 ### ROSI-LTS is the LTS variant maintining the previous stable version (Currently `v2.x.x`) for ROSI, an Electron GUI for yt-dlp
 
 ### ℹ️ To download the most recent non-lts release, please go to the [➡️ Main Repo](https://github.com/BurntToasters/ROSI)
