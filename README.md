@@ -29,7 +29,8 @@ Learn how to install ffmpeg: [https://help.rosie.run/installing-ffmpeg](https://
   - **Fedora:** `sudo dnf install ffmpeg -y`
   - **Arch:** `sudo pacman -S ffmpeg -y`
 
-## ℹ️ The Microsoft Store version of ROSI-LTS is now integrated into the main codebase. Its customizations are run via electron-builder when specifying to release for the ms store.
+## ℹ️ The Microsoft Store version of ROSI is available at: https://apps.microsoft.com/detail/9p4q134b2jw3
+*Please note: ROSI versions released to the MS store do NOT have an LTS version.*
 
 # Build ROSI-LTS from source:
 
