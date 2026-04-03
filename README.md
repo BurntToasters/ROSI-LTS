@@ -2,7 +2,7 @@
 
 ROSI-LTS is the long-term support branch of ROSI — an Electron GUI for yt-dlp. It receives yt-dlp updates and bug fixes based on the v3.x.x release.
 
-[<img width="150" alt="ROSI-LTS" src="https://prod.rosie.run/img/download-for-windows.png"/>](https://github.com/BurntToasters/ROSI-LTS/releases/latest/download/ROSI-Windows-x64.exe) [<img width="150" alt="ROSI-LTS" src="https://prod.rosie.run/img/download-for-windows-arm64.png"/>](https://github.com/BurntToasters/ROSI-LTS/releases/latest/download/ROSI-Windows-arm64.exe) [<img width="150" alt="ROSI-LTS" src="https://prod.rosie.run/img/download-for-macos.png"/>](https://github.com/BurntToasters/ROSI-LTS/releases/latest/download/ROSI-MacOS-universal.dmg) [<img width="150" alt="ROSI-LTS" src="https://prod.rosie.run/img/download-for-linux.png"/>](https://github.com/BurntToasters/ROSI-LTS/releases/latest)
+[<img width="150" alt="ROSI-LTS" src="https://prod.rosie.run/img/download-for-windows.png"/>](https://github.com/BurntToasters/ROSI-LTS/releases/latest/download/ROSI-LTS-Windows-x64.exe) [<img width="150" alt="ROSI-LTS" src="https://prod.rosie.run/img/download-for-windows-arm64.png"/>](https://github.com/BurntToasters/ROSI-LTS/releases/latest/download/ROSI-LTS-Windows-arm64.exe) [<img width="150" alt="ROSI-LTS" src="https://prod.rosie.run/img/download-for-macos.png"/>](https://github.com/BurntToasters/ROSI-LTS/releases/latest/download/ROSI-LTS-MacOS-universal.dmg) [<img width="150" alt="ROSI-LTS" src="https://prod.rosie.run/img/download-for-linux.png"/>](https://github.com/BurntToasters/ROSI-LTS/releases/latest)
 
 <p align="center">
 
@@ -29,7 +29,7 @@ Learn how to install ffmpeg: [https://help.rosie.run/installing-ffmpeg](https://
   - **Fedora:** `sudo dnf install ffmpeg -y`
   - **Arch:** `sudo pacman -S ffmpeg -y`
 
-## ℹ️ The Microsoft Store version of ROSI is now integrated into the main codebase. Its customizations are run via electron-builder when specifying to release for the ms store.
+## ℹ️ The Microsoft Store version of ROSI-LTS is now integrated into the main codebase. Its customizations are run via electron-builder when specifying to release for the ms store.
 
 # Build ROSI-LTS from source:
 
