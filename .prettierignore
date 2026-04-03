@@ -1,0 +1,6 @@
+# Binary and image files
+src/renderer/app.png
+src/renderer/loader.svg
+
+# Pre-existing malformed HTML (V3 source, cannot be auto-formatted)
+src/renderer/licenses-iframe.html
