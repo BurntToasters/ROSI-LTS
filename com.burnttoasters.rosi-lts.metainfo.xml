@@ -12,7 +12,8 @@
   </description>
   <launchable type="desktop-id">com.burnttoasters.rosi-lts.desktop</launchable>
   <releases>
-        <release version="3.6.0-LTS" date="2026-04-03"/>
+        
+    <release version="3.6.1-LTS" date="2026-04-03"/>
   </releases>
   <content_rating type="oars-1.1"/>
 </component>
