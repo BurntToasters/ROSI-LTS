@@ -13,7 +13,7 @@
   "packageManager": "npm@11.10.1",
   "engines": {
     "node": ">=24.x",
-    "npm": ">=10.x"
+    "npm": ">=11.x"
   },
   "scripts": {
     "gitprune": "node build-scripts/git-prune-local-branches.js",
