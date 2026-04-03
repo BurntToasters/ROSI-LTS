@@ -1,13 +1,13 @@
-import type { BrowserWindow } from 'electron';
-import { app } from 'electron';
-import { autoUpdater, CancellationToken } from 'electron-updater';
-import log from 'electron-log/main';
+import type { BrowserWindow } from "electron";
+import { app } from "electron";
+import { autoUpdater, CancellationToken } from "electron-updater";
+import log from "electron-log/main";
 import type {
   Settings,
   UpdateDownloadResult,
   UpdaterProgressEvent,
   UpdaterStatusEvent,
-} from '../types';
+} from "../types";
 
 let updateDownloadCancellationToken: CancellationToken | null = null;
 
@@ -23,14 +23,17 @@ export function isBetaVersion(version: string): boolean {
 }
 
 export function parseVersion(v: string): ParsedVersion {
-  const cleaned = v.trim().replace(/^v/i, '').split('+')[0];
-  const match = cleaned.match(/^(\d+)(?:\.(\d+))?(?:\.(\d+))?(?:-([0-9A-Za-z.-]+))?/);
-  if (!match) return { major: 0, minor: 0, patch: 0, prerelease: [] as string[] };
+  const cleaned = v.trim().replace(/^v/i, "").split("+")[0];
+  const match = cleaned.match(
+    /^(\d+)(?:\.(\d+))?(?:\.(\d+))?(?:-([0-9A-Za-z.-]+))?/,
+  );
+  if (!match)
+    return { major: 0, minor: 0, patch: 0, prerelease: [] as string[] };
   return {
     major: parseInt(match[1], 10) || 0,
     minor: match[2] ? parseInt(match[2], 10) : 0,
     patch: match[3] ? parseInt(match[3], 10) : 0,
-    prerelease: match[4] ? match[4].split('.') : ([] as string[]),
+    prerelease: match[4] ? match[4].split(".") : ([] as string[]),
   };
 }
 
@@ -66,25 +69,25 @@ export function compareVersions(a: string, b: string): number {
   return comparePrerelease(vA.prerelease, vB.prerelease);
 }
 
-export function resolveUseBeta(channel: Settings['updateChannel']): boolean {
-  if (channel === 'beta') return true;
-  if (channel === 'stable') return false;
+export function resolveUseBeta(channel: Settings["updateChannel"]): boolean {
+  if (channel === "beta") return true;
+  if (channel === "stable") return false;
   return isBetaVersion(app.getVersion());
 }
 
 export function applyChannel(useBeta: boolean) {
   if (useBeta) {
-    autoUpdater.channel = 'beta';
+    autoUpdater.channel = "beta";
     autoUpdater.allowPrerelease = true;
   } else {
-    autoUpdater.channel = 'latest';
+    autoUpdater.channel = "latest";
     autoUpdater.allowPrerelease = false;
   }
 }
 
 export function setupAutoUpdater(
   getMainWindow: () => BrowserWindow | null,
-  loadSettings: () => Settings
+  loadSettings: () => Settings,
 ) {
   autoUpdater.autoDownload = false;
   autoUpdater.autoInstallOnAppQuit = true;
@@ -93,7 +96,10 @@ export function setupAutoUpdater(
   const useBeta = resolveUseBeta(settings.updateChannel);
   applyChannel(useBeta);
 
-  const sendToWindow = (channel: 'updater-status' | 'updater-progress', data: unknown) => {
+  const sendToWindow = (
+    channel: "updater-status" | "updater-progress",
+    data: unknown,
+  ) => {
     const win = getMainWindow();
     if (win && !win.isDestroyed()) {
       win.webContents.send(channel, data);
@@ -101,24 +107,24 @@ export function setupAutoUpdater(
   };
 
   const sendStatus = (data: UpdaterStatusEvent) => {
-    sendToWindow('updater-status', data);
+    sendToWindow("updater-status", data);
   };
 
   const sendProgress = (data: UpdaterProgressEvent) => {
-    sendToWindow('updater-progress', data);
+    sendToWindow("updater-progress", data);
   };
 
-  autoUpdater.on('checking-for-update', () => {
-    sendStatus({ status: 'checking' });
+  autoUpdater.on("checking-for-update", () => {
+    sendStatus({ status: "checking" });
   });
 
-  autoUpdater.on('update-available', (info) => {
+  autoUpdater.on("update-available", (info) => {
     const currentUseBeta = resolveUseBeta(loadSettings().updateChannel);
     const updateIsBeta = isBetaVersion(info.version);
 
     if (currentUseBeta && !updateIsBeta) {
       sendStatus({
-        status: 'not-available',
+        status: "not-available",
         version: app.getVersion(),
         isBeta: currentUseBeta,
       });
@@ -126,7 +132,7 @@ export function setupAutoUpdater(
     }
     if (!currentUseBeta && updateIsBeta) {
       sendStatus({
-        status: 'not-available',
+        status: "not-available",
         version: app.getVersion(),
         isBeta: currentUseBeta,
       });
@@ -136,10 +142,10 @@ export function setupAutoUpdater(
     const currentVersion = app.getVersion();
     if (compareVersions(info.version, currentVersion) <= 0) {
       log.info(
-        `[AutoUpdater] Ignoring update ${info.version} — current ${currentVersion} is newer or equal`
+        `[AutoUpdater] Ignoring update ${info.version} — current ${currentVersion} is newer or equal`,
       );
       sendStatus({
-        status: 'not-available',
+        status: "not-available",
         version: currentVersion,
         isBeta: currentUseBeta,
       });
@@ -147,30 +153,30 @@ export function setupAutoUpdater(
     }
 
     sendStatus({
-      status: 'available',
+      status: "available",
       version: info.version,
       releaseNotes: info.releaseNotes ?? null,
       isBeta: updateIsBeta,
     });
   });
 
-  autoUpdater.on('update-not-available', (info) => {
+  autoUpdater.on("update-not-available", (info) => {
     sendStatus({
-      status: 'not-available',
+      status: "not-available",
       version: info.version ?? app.getVersion(),
       isBeta: isBetaVersion(info.version ?? app.getVersion()),
     });
   });
 
-  autoUpdater.on('error', (err) => {
-    log.error('Auto-updater error:', err);
+  autoUpdater.on("error", (err) => {
+    log.error("Auto-updater error:", err);
     sendStatus({
-      status: 'error',
+      status: "error",
       message: err.message,
     });
   });
 
-  autoUpdater.on('download-progress', (progressObj) => {
+  autoUpdater.on("download-progress", (progressObj) => {
     sendProgress({
       percent: progressObj.percent,
       bytesPerSecond: progressObj.bytesPerSecond,
@@ -179,17 +185,23 @@ export function setupAutoUpdater(
     });
   });
 
-  autoUpdater.on('update-downloaded', (info) => {
+  autoUpdater.on("update-downloaded", (info) => {
     sendStatus({
-      status: 'downloaded',
+      status: "downloaded",
       version: info.version,
     });
   });
 }
 
-export async function checkForUpdates(isPackaged: boolean, loadSettings: () => Settings) {
+export async function checkForUpdates(
+  isPackaged: boolean,
+  loadSettings: () => Settings,
+) {
   if (!isPackaged) {
-    return { error: 'dev-mode', message: 'Update checking is not available in development mode.' };
+    return {
+      error: "dev-mode",
+      message: "Update checking is not available in development mode.",
+    };
   }
   try {
     const settings = loadSettings();
@@ -209,21 +221,23 @@ export async function downloadUpdate(): Promise<UpdateDownloadResult> {
     return { success: true };
   } catch (error) {
     updateDownloadCancellationToken = null;
-    if ((error as Error).message?.includes('cancelled')) {
+    if ((error as Error).message?.includes("cancelled")) {
       return { cancelled: true };
     }
     return { error: (error as Error).message };
   }
 }
 
-export function cancelUpdateDownload(getMainWindow: () => BrowserWindow | null) {
+export function cancelUpdateDownload(
+  getMainWindow: () => BrowserWindow | null,
+) {
   if (updateDownloadCancellationToken) {
     updateDownloadCancellationToken.cancel();
     updateDownloadCancellationToken = null;
     const win = getMainWindow();
     if (win && !win.isDestroyed()) {
-      const cancelledEvent: UpdaterStatusEvent = { status: 'cancelled' };
-      win.webContents.send('updater-status', cancelledEvent);
+      const cancelledEvent: UpdaterStatusEvent = { status: "cancelled" };
+      win.webContents.send("updater-status", cancelledEvent);
     }
   }
 }

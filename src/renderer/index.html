@@ -6,7 +6,7 @@
       http-equiv="Content-Security-Policy"
       content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; frame-src 'self'; object-src 'none'; base-uri 'self';"
     />
-    <title>Rosi</title>
+    <title>ROSI-LTS</title>
     <link rel="stylesheet" href="main.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -21,7 +21,11 @@
     <aside id="sidebar" class="sidebar">
       <div class="sidebar-header">
         <h2>Settings</h2>
-        <button id="closeSidebar" class="sidebar-close" aria-label="Close settings">
+        <button
+          id="closeSidebar"
+          class="sidebar-close"
+          aria-label="Close settings"
+        >
           <svg
             width="20"
             height="20"
@@ -108,7 +112,8 @@
             />
           </label>
           <div class="settings-hint">
-            Used for merging formats and conversion when FFmpeg isn't in your PATH.
+            Used for merging formats and conversion when FFmpeg isn't in your
+            PATH.
           </div>
         </section>
 
@@ -120,7 +125,13 @@
             <span class="toggle-slider"></span>
             <span class="toggle-text">
               Hook into web browser
-              <a href="#" id="browserCookiesHelp" class="help-icon" title="Learn more">?</a>
+              <a
+                href="#"
+                id="browserCookiesHelp"
+                class="help-icon"
+                title="Learn more"
+                >?</a
+              >
             </span>
           </label>
 
@@ -249,7 +260,12 @@
 
     <main class="main-content">
       <header class="top-bar">
-        <button id="settingsBtn" class="icon-btn" title="Settings" aria-label="Settings">
+        <button
+          id="settingsBtn"
+          class="icon-btn"
+          title="Settings"
+          aria-label="Settings"
+        >
           <svg
             width="22"
             height="22"
@@ -268,10 +284,11 @@
         </button>
 
         <div class="app-brand">
-          <img src="app.png" alt="ROSI" class="app-logo" />
+          <img src="app.png" alt="ROSI-LTS" class="app-logo" />
           <span class="app-name"
             ><span class="char-white">R</span><span class="char-black">O</span
-            ><span class="char-white">S</span><span class="char-black">I</span></span
+            ><span class="char-white">S</span
+            ><span class="char-black">I</span></span
           >
         </div>
 
@@ -329,8 +346,12 @@
                 stroke-linecap="round"
                 stroke-linejoin="round"
               >
-                <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
-                <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+                <path
+                  d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"
+                />
+                <path
+                  d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"
+                />
               </svg>
               <input
                 id="url"
@@ -339,7 +360,12 @@
                 autocomplete="off"
                 spellcheck="false"
               />
-              <button id="clearUrl" class="clear-btn hidden" title="Clear" aria-label="Clear URL">
+              <button
+                id="clearUrl"
+                class="clear-btn hidden"
+                title="Clear"
+                aria-label="Clear URL"
+              >
                 <svg
                   width="16"
                   height="16"
@@ -355,7 +381,11 @@
                 </svg>
               </button>
             </div>
-            <button id="downloadBtn" class="download-btn" data-default-text="Download">
+            <button
+              id="downloadBtn"
+              class="download-btn"
+              data-default-text="Download"
+            >
               <svg
                 width="20"
                 height="20"
@@ -376,8 +406,17 @@
 
           <div id="progress-container" class="progress-container">
             <div class="progress-header">
-              <span id="progress-status" class="progress-status" aria-live="polite">Ready</span>
-              <span id="progress-percent" class="progress-percent" aria-live="polite"></span>
+              <span
+                id="progress-status"
+                class="progress-status"
+                aria-live="polite"
+                >Ready</span
+              >
+              <span
+                id="progress-percent"
+                class="progress-percent"
+                aria-live="polite"
+              ></span>
             </div>
             <div class="progress-bar-wrapper">
               <div id="progress-bar" class="progress-bar"></div>
@@ -486,12 +525,16 @@
 
       <div id="update-banner" class="update-banner">
         <div class="update-banner-content">
-          <span id="update-banner-text" class="update-banner-text">Downloading update…</span>
+          <span id="update-banner-text" class="update-banner-text"
+            >Downloading update…</span
+          >
           <div class="update-banner-progress">
             <div id="update-banner-bar" class="update-banner-bar"></div>
           </div>
           <span id="update-banner-info" class="update-banner-info"></span>
-          <button id="update-banner-cancel" class="update-banner-cancel">Cancel</button>
+          <button id="update-banner-cancel" class="update-banner-cancel">
+            Cancel
+          </button>
         </div>
       </div>
 
@@ -515,7 +558,9 @@
     >
       <div class="modal-box">
         <h3 id="modal-title">Modal Title</h3>
-        <div id="modal-message" class="modal-message">Modal message goes here...</div>
+        <div id="modal-message" class="modal-message">
+          Modal message goes here...
+        </div>
         <div id="modal-extra" class="modal-extra"></div>
         <div id="modal-buttons" class="modal-buttons"></div>
       </div>
@@ -531,7 +576,11 @@
       <div class="licenses-container">
         <div class="licenses-header">
           <h3>Open Source Licenses</h3>
-          <button id="close-licenses" class="modal-close-btn" aria-label="Close">
+          <button
+            id="close-licenses"
+            class="modal-close-btn"
+            aria-label="Close"
+          >
             <svg
               width="20"
               height="20"

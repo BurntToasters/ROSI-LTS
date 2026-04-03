@@ -1,17 +1,20 @@
-const { spawnSync } = require('child_process');
-const path = require('path');
+const { spawnSync } = require("child_process");
+const path = require("path");
 
 const args = process.argv.slice(2);
 
 function usage() {
   console.error(
-    'Usage: node build-scripts/build-with-restore.js [--prepare <script>] [--env KEY=VALUE] -- <command> [args...]'
+    "Usage: node build-scripts/build-with-restore.js [--prepare <script>] [--env KEY=VALUE] -- <command> [args...]",
   );
   process.exit(1);
 }
 
 function resolveCommand(command) {
-  if (process.platform === 'win32' && (command === 'npm' || command === 'npx')) {
+  if (
+    process.platform === "win32" &&
+    (command === "npm" || command === "npx")
+  ) {
     return `${command}.cmd`;
   }
   return command;
@@ -19,7 +22,7 @@ function resolveCommand(command) {
 
 function run(command, commandArgs, envOverrides) {
   const result = spawnSync(resolveCommand(command), commandArgs, {
-    stdio: 'inherit',
+    stdio: "inherit",
     env: { ...process.env, ...envOverrides },
     shell: false,
   });
@@ -33,7 +36,7 @@ function run(command, commandArgs, envOverrides) {
 
 let prepareScript = null;
 const envOverrides = {};
-const separatorIndex = args.indexOf('--');
+const separatorIndex = args.indexOf("--");
 
 if (separatorIndex === -1) {
   usage();
@@ -47,7 +50,7 @@ if (commandParts.length === 0) {
 
 for (let i = 0; i < optionArgs.length; i++) {
   const current = optionArgs[i];
-  if (current === '--prepare') {
+  if (current === "--prepare") {
     const next = optionArgs[i + 1];
     if (!next) usage();
     prepareScript = next;
@@ -55,11 +58,11 @@ for (let i = 0; i < optionArgs.length; i++) {
     continue;
   }
 
-  if (current === '--env') {
+  if (current === "--env") {
     const next = optionArgs[i + 1];
-    if (!next || !next.includes('=')) usage();
-    const [key, ...valueParts] = next.split('=');
-    envOverrides[key] = valueParts.join('=');
+    if (!next || !next.includes("=")) usage();
+    const [key, ...valueParts] = next.split("=");
+    envOverrides[key] = valueParts.join("=");
     i++;
     continue;
   }
@@ -71,7 +74,11 @@ let exitCode = 0;
 
 try {
   if (prepareScript) {
-    exitCode = run(process.execPath, [path.resolve(prepareScript)], envOverrides);
+    exitCode = run(
+      process.execPath,
+      [path.resolve(prepareScript)],
+      envOverrides,
+    );
   }
 
   if (exitCode === 0) {
@@ -80,7 +87,11 @@ try {
   }
 } finally {
   if (prepareScript) {
-    const restoreCode = run(process.execPath, [path.join(__dirname, 'restore-binaries.js')], {});
+    const restoreCode = run(
+      process.execPath,
+      [path.join(__dirname, "restore-binaries.js")],
+      {},
+    );
     if (exitCode === 0 && restoreCode !== 0) {
       exitCode = restoreCode;
     }

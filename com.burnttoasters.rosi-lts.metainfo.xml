@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>com.burnttoasters.rosi-lts</id>
+  <name>ROSI-LTS</name>
+  <summary>Electron GUI for yt-dlp</summary>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>MPL-2.0</project_license>
+  <url type="homepage">https://github.com/BurntToasters/ROSI-LTS</url>
+  <url type="bugtracker">https://github.com/BurntToasters/ROSI-LTS/issues</url>
+  <description>
+    <p>ROSI-LTS is a cross-platform Electron GUI for yt-dlp, providing an easy-to-use interface for downloading videos.</p>
+  </description>
+  <launchable type="desktop-id">com.burnttoasters.rosi-lts.desktop</launchable>
+  <releases>
+    <release version="3.6.0-LTS" date="2026-04-02"/>
+  </releases>
+  <content_rating type="oars-1.1"/>
+</component>

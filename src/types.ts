@@ -14,7 +14,7 @@ export interface Settings {
   notifications: boolean;
   denoReminderDismissed: boolean;
   gpuAcceleration: boolean;
-  gpuType: 'auto' | 'nvidia' | 'amd' | 'intel';
+  gpuType: "auto" | "nvidia" | "amd" | "intel";
   bestQuality: boolean;
   ffmpegPath: string;
   hideSupportModal: boolean;
@@ -22,17 +22,17 @@ export interface Settings {
   updateChannel: UpdateChannel;
 }
 
-export type UpdateChannel = 'auto' | 'stable' | 'beta';
+export type UpdateChannel = "auto" | "stable" | "beta";
 
-export type DistributionChannel = 'github' | 'msstore';
+export type DistributionChannel = "github" | "msstore";
 
 export type IpcErrorCode =
-  | 'VALIDATION_ERROR'
-  | 'INVALID_URL'
-  | 'INVALID_PATH'
-  | 'NOT_SUPPORTED'
-  | 'NOT_AVAILABLE'
-  | 'INTERNAL_ERROR';
+  | "VALIDATION_ERROR"
+  | "INVALID_URL"
+  | "INVALID_PATH"
+  | "NOT_SUPPORTED"
+  | "NOT_AVAILABLE"
+  | "INTERNAL_ERROR";
 
 export interface IpcErrorPayload {
   code: IpcErrorCode;
@@ -40,7 +40,9 @@ export interface IpcErrorPayload {
   details?: string;
 }
 
-export type IpcResult<T = void> = { ok: true; data: T } | { ok: false; error: IpcErrorPayload };
+export type IpcResult<T = void> =
+  | { ok: true; data: T }
+  | { ok: false; error: IpcErrorPayload };
 
 export interface DownloadLifecycleState {
   cancelled: boolean;
@@ -51,8 +53,8 @@ export interface DownloadSession {
   id: number;
   sender: Electron.WebContents;
   lifecycle: DownloadLifecycleState;
-  ytdlpProcess: import('child_process').ChildProcess | null;
-  ffmpegProcess: import('child_process').ChildProcess | null;
+  ytdlpProcess: import("child_process").ChildProcess | null;
+  ffmpegProcess: import("child_process").ChildProcess | null;
 }
 
 export interface DownloadRequestOptions {
@@ -72,7 +74,7 @@ export interface GpuDetectionResult {
 }
 
 export interface FormatsProcess {
-  proc: import('child_process').ChildProcess;
+  proc: import("child_process").ChildProcess;
   cancelled: boolean;
 }
 
@@ -83,17 +85,20 @@ export interface NotificationRequest {
 }
 
 export type UpdaterStatusEvent =
-  | { status: 'checking' }
+  | { status: "checking" }
   | {
-      status: 'available';
+      status: "available";
       version: string;
-      releaseNotes: string | null | import('builder-util-runtime').ReleaseNoteInfo[];
+      releaseNotes:
+        | string
+        | null
+        | import("builder-util-runtime").ReleaseNoteInfo[];
       isBeta: boolean;
     }
-  | { status: 'not-available'; version: string; isBeta: boolean }
-  | { status: 'error'; message: string }
-  | { status: 'cancelled' }
-  | { status: 'downloaded'; version: string };
+  | { status: "not-available"; version: string; isBeta: boolean }
+  | { status: "error"; message: string }
+  | { status: "cancelled" }
+  | { status: "downloaded"; version: string };
 
 export interface UpdaterProgressEvent {
   percent: number;
@@ -119,7 +124,9 @@ export interface RendererApi {
   saveSettings: (settings: Partial<Settings>) => Promise<IpcResult<Settings>>;
   resetSettings: () => void;
   openExternal: (url: string) => Promise<IpcResult<{ opened: boolean }>>;
-  downloadVideo: (options: DownloadRequestOptions) => Promise<IpcResult<{ started: boolean }>>;
+  downloadVideo: (
+    options: DownloadRequestOptions,
+  ) => Promise<IpcResult<{ started: boolean }>>;
   cancelDownload: () => void;
   cancelFormats: () => void;
   getAppVersion: () => Promise<string>;
@@ -137,10 +144,18 @@ export interface RendererApi {
   cancelUpdateDownload: () => void;
   installUpdate: () => void;
   onUpdaterStatus: (callback: (data: UpdaterStatusEvent) => void) => () => void;
-  onUpdaterProgress: (callback: (data: UpdaterProgressEvent) => void) => () => void;
-  onDownloadProgress: (callback: (data: Record<string, unknown>) => void) => () => void;
+  onUpdaterProgress: (
+    callback: (data: UpdaterProgressEvent) => void,
+  ) => () => void;
+  onDownloadProgress: (
+    callback: (data: Record<string, unknown>) => void,
+  ) => () => void;
   onProgress: (callback: (message: string) => void) => () => void;
   onComplete: (callback: (message: string) => void) => () => void;
-  openFileLocation: (filePath: string) => Promise<IpcResult<{ opened: boolean }>>;
-  showNotification: (options: NotificationRequest) => Promise<IpcResult<{ shown: boolean }>>;
+  openFileLocation: (
+    filePath: string,
+  ) => Promise<IpcResult<{ opened: boolean }>>;
+  showNotification: (
+    options: NotificationRequest,
+  ) => Promise<IpcResult<{ shown: boolean }>>;
 }

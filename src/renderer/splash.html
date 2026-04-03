@@ -6,7 +6,7 @@
       http-equiv="Content-Security-Policy"
       content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; object-src 'none'; base-uri 'self';"
     />
-    <title>Loading ROSI</title>
+    <title>Loading ROSI-LTS</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -15,8 +15,10 @@
     />
     <style>
       :root {
-        --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        --font-mono: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+        --font-sans:
+          "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          sans-serif;
+        --font-mono: "SF Mono", "Fira Code", "Consolas", monospace;
         --bg-gradient-start: #0f0a1a;
         --bg-gradient-mid: #1a1030;
         --bg-gradient-end: #2d1f4e;
@@ -112,7 +114,11 @@
         transform: translate(-50%, -50%);
         width: 180px;
         height: 180px;
-        background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
+        background: radial-gradient(
+          circle,
+          var(--accent-glow) 0%,
+          transparent 70%
+        );
         border-radius: var(--radius-full);
         animation: glowPulse 3s ease-in-out infinite;
         z-index: -1;
@@ -168,7 +174,7 @@
       }
 
       .loading-bar::after {
-        content: '';
+        content: "";
         position: absolute;
         top: 0;
         left: -40%;
@@ -257,14 +263,14 @@
     <div class="splash-container">
       <div class="logo-wrapper">
         <div class="logo-glow"></div>
-        <img src="app.png" class="logo" alt="ROSI Logo" />
+        <img src="app.png" class="logo" alt="ROSI-LTS Logo" />
       </div>
-      <h1 class="app-title">ROSI</h1>
+      <h1 class="app-title">ROSI-LTS</h1>
       <p class="app-subtitle">Starting up...</p>
       <div class="loading-container">
         <div class="loading-bar"></div>
       </div>
     </div>
-    <div class="version" id="version-display">v3.5.1</div>
+    <div class="version" id="version-display">v3.6.0-LTS</div>
   </body>
 </html>

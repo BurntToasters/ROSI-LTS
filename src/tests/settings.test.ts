@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const {
   existsSyncMock,
@@ -18,23 +18,23 @@ const {
   };
 });
 
-vi.mock('fs', () => ({
+vi.mock("fs", () => ({
   existsSync: existsSyncMock,
   readFileSync: readFileSyncMock,
   writeFileSync: writeFileSyncMock,
   mkdirSync: mkdirSyncMock,
 }));
 
-vi.mock('electron', () => ({
+vi.mock("electron", () => ({
   app: {
-    getPath: vi.fn(() => '/tmp/rosi-tests'),
+    getPath: vi.fn(() => "/tmp/rosi-tests"),
   },
   dialog: {
     showErrorBox: showErrorBoxMock,
   },
 }));
 
-vi.mock('electron-log/main', () => ({
+vi.mock("electron-log/main", () => ({
   default: {
     error: logErrorMock,
   },
@@ -45,48 +45,50 @@ import {
   getDefaultSettings,
   loadSettings,
   saveSettings,
-} from '../main/settings';
+} from "../main/settings";
 
-describe('settings persistence', () => {
+describe("settings persistence", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     existsSyncMock.mockImplementation(() => true);
     readFileSyncMock.mockReturnValue(JSON.stringify(getDefaultSettings()));
   });
 
-  it('returns default settings when settings file is missing', () => {
-    existsSyncMock.mockImplementation((target: string) => !target.endsWith('settings.json'));
+  it("returns default settings when settings file is missing", () => {
+    existsSyncMock.mockImplementation(
+      (target: string) => !target.endsWith("settings.json"),
+    );
     const loaded = loadSettings();
     expect(loaded).toEqual(getDefaultSettings());
   });
 
-  it('returns default settings when settings JSON is invalid', () => {
-    readFileSyncMock.mockReturnValue('{');
+  it("returns default settings when settings JSON is invalid", () => {
+    readFileSyncMock.mockReturnValue("{");
     const loaded = loadSettings();
     expect(loaded).toEqual(getDefaultSettings());
   });
 
-  it('normalizes loaded settings version to current version', () => {
+  it("normalizes loaded settings version to current version", () => {
     readFileSyncMock.mockReturnValue(
       JSON.stringify({
         ...getDefaultSettings(),
         settingsVersion: 0,
-        updateChannel: 'beta',
-      })
+        updateChannel: "beta",
+      }),
     );
 
     const loaded = loadSettings();
     expect(loaded.settingsVersion).toBe(CURRENT_SETTINGS_VERSION);
-    expect(loaded.updateChannel).toBe('beta');
+    expect(loaded.updateChannel).toBe("beta");
   });
 
-  it('saves merged settings payload with normalized schema', () => {
+  it("saves merged settings payload with normalized schema", () => {
     const result = saveSettings(
       {
         audioOnly: true,
-        updateChannel: 'stable',
+        updateChannel: "stable",
       },
-      null
+      null,
     );
 
     expect(result).toBe(true);
@@ -95,21 +97,25 @@ describe('settings persistence', () => {
     const [, writtenPayload] = writeFileSyncMock.mock.calls[0];
     const parsed = JSON.parse(writtenPayload);
     expect(parsed.audioOnly).toBe(true);
-    expect(parsed.updateChannel).toBe('stable');
+    expect(parsed.updateChannel).toBe("stable");
     expect(parsed.settingsVersion).toBe(CURRENT_SETTINGS_VERSION);
   });
 
-  it('creates settings directory when missing before save', () => {
-    existsSyncMock.mockImplementation((target: string) => target.endsWith('settings.json'));
+  it("creates settings directory when missing before save", () => {
+    existsSyncMock.mockImplementation((target: string) =>
+      target.endsWith("settings.json"),
+    );
     const result = saveSettings({ audioOnly: true }, null);
 
     expect(result).toBe(true);
-    expect(mkdirSyncMock).toHaveBeenCalledWith(expect.any(String), { recursive: true });
+    expect(mkdirSyncMock).toHaveBeenCalledWith(expect.any(String), {
+      recursive: true,
+    });
   });
 
-  it('returns false and shows error when write fails', () => {
+  it("returns false and shows error when write fails", () => {
     writeFileSyncMock.mockImplementation(() => {
-      throw new Error('disk full');
+      throw new Error("disk full");
     });
     const mainWindow = { isDestroyed: () => false } as any;
     const result = saveSettings({ audioOnly: true }, mainWindow);
@@ -117,8 +123,8 @@ describe('settings persistence', () => {
     expect(result).toBe(false);
     expect(logErrorMock).toHaveBeenCalled();
     expect(showErrorBoxMock).toHaveBeenCalledWith(
-      'Settings Save Error',
-      expect.stringContaining('disk full')
+      "Settings Save Error",
+      expect.stringContaining("disk full"),
     );
   });
 });

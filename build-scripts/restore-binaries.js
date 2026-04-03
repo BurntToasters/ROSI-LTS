@@ -1,25 +1,25 @@
-const fs = require('fs');
-const path = require('path');
+const fs = require("fs");
+const path = require("path");
 
-const projectRoot = path.resolve(__dirname, '..');
+const projectRoot = path.resolve(__dirname, "..");
 const buildScriptsDir = __dirname;
 
 const binaryBackups = [
   {
-    backup: path.join(buildScriptsDir, 'yt-dlp.exe.bak'),
-    original: path.join(projectRoot, 'assets', 'yt-dlp.exe'),
+    backup: path.join(buildScriptsDir, "yt-dlp.exe.bak"),
+    original: path.join(projectRoot, "assets", "yt-dlp.exe"),
   },
   {
-    backup: path.join(buildScriptsDir, 'yt-dlp_arm64.exe.bak'),
-    original: path.join(projectRoot, 'assets', 'yt-dlp_arm64.exe'),
+    backup: path.join(buildScriptsDir, "yt-dlp_arm64.exe.bak"),
+    original: path.join(projectRoot, "assets", "yt-dlp_arm64.exe"),
   },
   {
-    backup: path.join(buildScriptsDir, 'yt-dlp_linux.bak'),
-    original: path.join(projectRoot, 'assets', 'yt-dlp_linux'),
+    backup: path.join(buildScriptsDir, "yt-dlp_linux.bak"),
+    original: path.join(projectRoot, "assets", "yt-dlp_linux"),
   },
   {
-    backup: path.join(buildScriptsDir, 'yt-dlp_linux_aarch64.bak'),
-    original: path.join(projectRoot, 'assets', 'yt-dlp_linux_aarch64'),
+    backup: path.join(buildScriptsDir, "yt-dlp_linux_aarch64.bak"),
+    original: path.join(projectRoot, "assets", "yt-dlp_linux_aarch64"),
   },
 ];
 
@@ -51,7 +51,9 @@ configBackups.forEach(({ backup, original }) => {
 });
 
 if (restoredBinaries > 0 || restoredConfigs > 0) {
-  console.log(`\n✓ Restored ${restoredBinaries} binaries and ${restoredConfigs} config files`);
+  console.log(
+    `\n✓ Restored ${restoredBinaries} binaries and ${restoredConfigs} config files`,
+  );
 } else {
-  console.log('No backup files found to restore');
+  console.log("No backup files found to restore");
 }
