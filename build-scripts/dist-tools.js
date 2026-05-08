@@ -36,7 +36,7 @@ function cleanBuildArtifacts() {
 }
 
 function cleanReleaseArtifacts() {
-  const dirs = ["release"];
+  const dirs = ["release", "dist"];
   for (const dir of dirs) {
     try {
       fs.rmSync(dir, {

@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { BrowserWindow } from "electron";
 
 const {
   existsSyncMock,
@@ -117,7 +118,7 @@ describe("settings persistence", () => {
     writeFileSyncMock.mockImplementation(() => {
       throw new Error("disk full");
     });
-    const mainWindow = { isDestroyed: () => false } as any;
+    const mainWindow = { isDestroyed: () => false } as unknown as BrowserWindow;
     const result = saveSettings({ audioOnly: true }, mainWindow);
 
     expect(result).toBe(false);
