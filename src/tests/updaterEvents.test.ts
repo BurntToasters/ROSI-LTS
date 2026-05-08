@@ -1,4 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { BrowserWindow } from "electron";
+
+type UpdaterEventListener = (payload?: unknown) => void;
 
 const {
   autoUpdaterMock,
@@ -8,14 +11,14 @@ const {
   logInfoMock,
   logErrorMock,
 } = vi.hoisted(() => {
-  const eventListeners: Record<string, Array<(payload?: any) => void>> = {};
+  const eventListeners: Record<string, UpdaterEventListener[]> = {};
   const cancellationCancel = vi.fn();
   const autoUpdater = {
     channel: "latest",
     allowPrerelease: false,
     autoDownload: false,
     autoInstallOnAppQuit: false,
-    on: vi.fn((event: string, callback: (payload?: any) => void) => {
+    on: vi.fn((event: string, callback: UpdaterEventListener) => {
       eventListeners[event] ??= [];
       eventListeners[event].push(callback);
     }),
@@ -92,7 +95,14 @@ function createSettings(overrides: Partial<Settings> = {}): Settings {
   };
 }
 
-function emit(event: string, payload?: any) {
+function createMainWindow(sendMock: ReturnType<typeof vi.fn>): BrowserWindow {
+  return {
+    isDestroyed: () => false,
+    webContents: { send: sendMock },
+  } as unknown as BrowserWindow;
+}
+
+function emit(event: string, payload?: unknown) {
   for (const listener of listeners[event] ?? []) {
     listener(payload);
   }
@@ -110,11 +120,7 @@ describe("updater event wiring and control flow", () => {
   it("wires updater events to renderer channels", () => {
     const sendMock = vi.fn();
     setupAutoUpdater(
-      () =>
-        ({
-          isDestroyed: () => false,
-          webContents: { send: sendMock },
-        }) as any,
+      () => createMainWindow(sendMock),
       () => createSettings({ updateChannel: "stable" }),
     );
 
@@ -156,11 +162,7 @@ describe("updater event wiring and control flow", () => {
   it("filters beta updates on stable channel", () => {
     const sendMock = vi.fn();
     setupAutoUpdater(
-      () =>
-        ({
-          isDestroyed: () => false,
-          webContents: { send: sendMock },
-        }) as any,
+      () => createMainWindow(sendMock),
       () => createSettings({ updateChannel: "stable" }),
     );
 
@@ -175,11 +177,7 @@ describe("updater event wiring and control flow", () => {
   it("emits available status for valid newer updates", () => {
     const sendMock = vi.fn();
     setupAutoUpdater(
-      () =>
-        ({
-          isDestroyed: () => false,
-          webContents: { send: sendMock },
-        }) as any,
+      () => createMainWindow(sendMock),
       () => createSettings({ updateChannel: "stable" }),
     );
 
@@ -195,11 +193,7 @@ describe("updater event wiring and control flow", () => {
   it("ignores updates that are not newer than current version", () => {
     const sendMock = vi.fn();
     setupAutoUpdater(
-      () =>
-        ({
-          isDestroyed: () => false,
-          webContents: { send: sendMock },
-        }) as any,
+      () => createMainWindow(sendMock),
       () => createSettings({ updateChannel: "stable" }),
     );
 
@@ -247,11 +241,7 @@ describe("updater event wiring and control flow", () => {
   it("can cancel active update download and emit cancelled status", async () => {
     const sendMock = vi.fn();
     setupAutoUpdater(
-      () =>
-        ({
-          isDestroyed: () => false,
-          webContents: { send: sendMock },
-        }) as any,
+      () => createMainWindow(sendMock),
       () => createSettings({ updateChannel: "stable" }),
     );
 
@@ -260,13 +250,7 @@ describe("updater event wiring and control flow", () => {
     );
     void downloadUpdate();
 
-    cancelUpdateDownload(
-      () =>
-        ({
-          isDestroyed: () => false,
-          webContents: { send: sendMock },
-        }) as any,
-    );
+    cancelUpdateDownload(() => createMainWindow(sendMock));
 
     expect(cancellationCancelMock).toHaveBeenCalled();
     expect(sendMock).toHaveBeenCalledWith("updater-status", {

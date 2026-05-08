@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { EventEmitter } from "events";
+import type { BrowserWindow } from "electron";
 
 const {
   existsSyncMock,
@@ -102,7 +103,7 @@ describe("deno helpers", () => {
   });
 
   it("shows install dialog with focused parent window when available", async () => {
-    const focusedWindow = {} as any;
+    const focusedWindow = {} as unknown as BrowserWindow;
     getFocusedWindowMock.mockReturnValue(focusedWindow);
     showMessageBoxMock.mockResolvedValue({ response: 1 });
     await installDeno(null);

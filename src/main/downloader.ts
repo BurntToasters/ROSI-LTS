@@ -548,16 +548,17 @@ export function startDownload(
         return;
       }
 
-      let downloadedFilePath: string | null = null;
+      let downloadedFilePath: string;
       try {
         const outputLines = downloadOutputData.trim().split("\n");
-        downloadedFilePath =
+        const extractedPath =
           outputLines.filter((line) => line.trim() !== "").pop() ?? null;
-        if (!downloadedFilePath) {
+        if (!extractedPath) {
           throw new Error(
             "Could not find a valid filepath in yt-dlp's output.",
           );
         }
+        downloadedFilePath = extractedPath;
         sendProgress(
           session,
           `✅ Download finished. Identified file: ${downloadedFilePath}`,

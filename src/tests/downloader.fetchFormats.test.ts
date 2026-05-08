@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { EventEmitter } from "events";
+import type { WebContents } from "electron";
 
 const { existsSyncMock, statSyncMock, mkdirSyncMock, spawnWithEnvMock } =
   vi.hoisted(() => {
@@ -80,6 +81,13 @@ function createProc() {
   return proc;
 }
 
+function createSender(send: ReturnType<typeof vi.fn>): WebContents {
+  return {
+    isDestroyed: () => false,
+    send,
+  } as unknown as WebContents;
+}
+
 describe("downloader format fetch", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -155,10 +163,7 @@ describe("downloader format fetch", () => {
     const send = vi.fn();
     startDownload(
       "/tmp/ytdlp",
-      {
-        isDestroyed: () => false,
-        send,
-      } as any,
+      createSender(send),
       { url: "not-a-url", outputPath: "/tmp/downloads" },
       null,
     );
@@ -171,10 +176,7 @@ describe("downloader format fetch", () => {
     const send = vi.fn();
     startDownload(
       "/tmp/ytdlp",
-      {
-        isDestroyed: () => false,
-        send,
-      } as any,
+      createSender(send),
       { url: "https://example.com", outputPath: "" },
       null,
     );
@@ -197,10 +199,7 @@ describe("downloader format fetch", () => {
 
     startDownload(
       "/missing/ytdlp",
-      {
-        isDestroyed: () => false,
-        send,
-      } as any,
+      createSender(send),
       { url: "https://example.com", outputPath: "/tmp/downloads" },
       null,
     );
@@ -221,10 +220,7 @@ describe("downloader format fetch", () => {
 
     startDownload(
       "/tmp/ytdlp",
-      {
-        isDestroyed: () => false,
-        send,
-      } as any,
+      createSender(send),
       { url: "https://example.com", outputPath: "/tmp/not-a-dir" },
       null,
     );
@@ -246,10 +242,7 @@ describe("downloader format fetch", () => {
 
     startDownload(
       "/tmp/ytdlp",
-      {
-        isDestroyed: () => false,
-        send,
-      } as any,
+      createSender(send),
       { url: "https://example.com/video", outputPath: "/tmp/downloads" },
       null,
     );
@@ -281,10 +274,7 @@ describe("downloader format fetch", () => {
 
     startDownload(
       "/tmp/ytdlp",
-      {
-        isDestroyed: () => false,
-        send,
-      } as any,
+      createSender(send),
       { url: "https://example.com/video", outputPath: "/tmp/new-downloads" },
       null,
     );
@@ -310,10 +300,7 @@ describe("downloader format fetch", () => {
 
     startDownload(
       "/tmp/ytdlp",
-      {
-        isDestroyed: () => false,
-        send,
-      } as any,
+      createSender(send),
       { url: "https://example.com/video", outputPath: "/tmp/downloads" },
       null,
     );
@@ -329,10 +316,7 @@ describe("downloader format fetch", () => {
 
     startDownload(
       "/tmp/ytdlp",
-      {
-        isDestroyed: () => false,
-        send,
-      } as any,
+      createSender(send),
       { url: "https://example.com/video", outputPath: "/tmp/downloads" },
       null,
     );
@@ -352,10 +336,7 @@ describe("downloader format fetch", () => {
 
     startDownload(
       "/tmp/ytdlp",
-      {
-        isDestroyed: () => false,
-        send,
-      } as any,
+      createSender(send),
       { url: "https://example.com/video", outputPath: "/tmp/downloads" },
       null,
     );
