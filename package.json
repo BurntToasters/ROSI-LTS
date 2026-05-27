@@ -1,6 +1,6 @@
 {
   "name": "rosi-lts",
-  "version": "3.6.3-LTS",
+  "version": "3.6.4-LTS",
   "private": true,
   "description": "Electron GUI for yt-dlp",
   "keywords": [
