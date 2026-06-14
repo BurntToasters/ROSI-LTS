@@ -20,7 +20,7 @@ ROSI-LTS is the long-term support branch of ROSI — an Electron GUI for yt-dlp.
 # Requirements
 
 ROSI-LTS requires ffmpeg to be installed in your system and available in its PATH.
-Learn how to install ffmpeg: [https://help.rosie.run/installing-ffmpeg](https://help.rosie.run/installing-ffmpeg)
+Learn how to install ffmpeg: [https://help.rosie.run/rosi-lts/en-us/installing-ffmpeg](https://help.rosie.run/rosi-lts/en-us/installing-ffmpeg)
 
 - **MacOS:** `brew install ffmpeg`
 - **Windows:** `winget install ffmpeg`

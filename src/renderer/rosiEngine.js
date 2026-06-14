@@ -1246,9 +1246,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   bindExternalLink(
     browserCookiesHelp,
-    "https://help.rosie.run/about-browser-cookies",
+    "https://help.rosie.run/rosi/en-us/about-browser-cookies",
   );
-  bindExternalLink(helpLink, "https://help.rosie.run/rosi/en-us/faq");
+  bindExternalLink(helpLink, "https://help.rosie.run/rosi-lts/en-us/faq");
   bindExternalLink(supportLink, "https://rosie.run/support");
   bindExternalLink(websiteLink, "https://rosie.run");
   bindExternalLink(supportProjectLink, "https://rosie.run/support");
@@ -1818,7 +1818,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         {
           label: "More Info",
           action: () =>
-            window.api.openExternal("https://help.rosie.run/installing-ffmpeg"),
+            window.api.openExternal("https://help.rosie.run/rosi-lts/en-us/installing-ffmpeg"),
         },
         {
           label: "OK",
