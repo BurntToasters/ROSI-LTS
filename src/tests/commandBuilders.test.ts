@@ -147,11 +147,11 @@ describe("command builders", () => {
         videoFormat: "137",
         audioFormat: "140",
       },
-      ffmpegLocation: "/usr/bin/ffmpeg",
+      ffmpegLocation: "/usr/bin",
     });
 
     expect(result.args).toContain("--ffmpeg-location");
-    expect(result.args).toContain("/usr/bin/ffmpeg");
+    expect(result.args).toContain("/usr/bin");
     expect(result.args).toContain("--cookies-from-browser");
     expect(result.args).toContain("Firefox");
     expect(result.args).toContain("137+140");

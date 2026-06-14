@@ -10,6 +10,7 @@ interface PlatformMocks {
   appQuitMock: ReturnType<typeof vi.fn>;
   logInfoMock: ReturnType<typeof vi.fn>;
   logErrorMock: ReturnType<typeof vi.fn>;
+  logWarnMock: ReturnType<typeof vi.fn>;
 }
 
 const initialResourcesPath = (
@@ -31,6 +32,7 @@ async function loadPlatformModule(
     appQuitMock: vi.fn(),
     logInfoMock: vi.fn(),
     logErrorMock: vi.fn(),
+    logWarnMock: vi.fn(),
   };
   setup(mocks);
 
@@ -58,6 +60,7 @@ async function loadPlatformModule(
     default: {
       info: mocks.logInfoMock,
       error: mocks.logErrorMock,
+      warn: mocks.logWarnMock,
     },
   }));
 
@@ -95,18 +98,16 @@ describe("platform resolveYtdlpPath", () => {
     expect(mocks.logInfoMock).toHaveBeenCalled();
   });
 
-  it("shows missing dependency error and quits when yt-dlp is absent", async () => {
-    const { mod, mocks } = await loadPlatformModule(true, (m) => {
+  it("logs when bundled yt-dlp is missing", async () => {
+    const { mod, mocks } = await loadPlatformModule(false, (m) => {
       m.existsSyncMock.mockReturnValue(false);
     });
 
-    const resolved = mod.resolveYtdlpPath();
+    const resolved = await mod.initializeYtdlpPath();
     expect(resolved).toContain(mod.ytdlpBinary);
-    expect(mocks.showErrorBoxMock).toHaveBeenCalledWith(
-      "Missing Dependency",
+    expect(mocks.logErrorMock).toHaveBeenCalledWith(
       expect.stringContaining("yt-dlp binary not found"),
     );
-    expect(mocks.appQuitMock).toHaveBeenCalled();
   });
 
   it("shows permission error and quits for non-recoverable chmod failures", async () => {

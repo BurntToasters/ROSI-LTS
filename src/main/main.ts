@@ -9,7 +9,7 @@ import {
 import * as path from "path";
 import * as fs from "fs";
 import log from "electron-log/main";
-import { isPackaged, resolveYtdlpPath } from "./platform";
+import { isPackaged, initializeYtdlpPath } from "./platform";
 import { loadSettings, saveSettings, getDefaultSettings } from "./settings";
 import {
   setupAutoUpdater,
@@ -46,7 +46,7 @@ import type { DownloadRequestOptions } from "../types";
 
 log.initialize();
 
-const ytdlpPath = resolveYtdlpPath();
+let ytdlpPath = "";
 
 let mainWindow: BrowserWindow | null = null;
 let splashWindow: BrowserWindow | null = null;
@@ -141,7 +141,17 @@ function createWindow() {
   });
 }
 
-app.whenReady().then(() => {
+void app.whenReady().then(async () => {
+  ytdlpPath = await initializeYtdlpPath();
+  if (!fs.existsSync(ytdlpPath)) {
+    dialog.showErrorBox(
+      "Missing Dependency",
+      `yt-dlp binary not found at ${ytdlpPath}.\nPlease ensure the yt-dlp binary is in the application's directory, or install yt-dlp via Homebrew.`,
+    );
+    app.quit();
+    return;
+  }
+
   createSplashWindow();
   setTimeout(() => {
     createWindow();

@@ -422,10 +422,11 @@ export function startDownload(
 
   const settings = loadSettings();
   const effectiveSettings: Settings = { ...settings };
-  const ffmpegLocation = resolveFfmpegPath(
+  const ffmpegPath = resolveFfmpegPath(
     options.ffmpegPath || settings.ffmpegPath,
   );
-  const ffmpegCommand = ffmpegLocation || "ffmpeg";
+  const ffmpegCommand = ffmpegPath || "ffmpeg";
+  const ffmpegLocation = ffmpegPath ? path.dirname(ffmpegPath) : null;
 
   if (options.convertFormat !== undefined) {
     if (
@@ -540,6 +541,16 @@ export function startDownload(
           session,
           `❌ Download failed: yt-dlp process exited with code ${code}`,
         );
+        if (
+          downloadErrorData.includes("different Team IDs") ||
+          downloadErrorData.includes("[PYI-") ||
+          downloadErrorData.includes("Failed to load Python shared library")
+        ) {
+          sendProgress(
+            session,
+            "   macOS blocked the bundled yt-dlp runtime (code signing). Install yt-dlp via Homebrew as a workaround, or use a rebuilt ROSI-LTS release with signed helpers.",
+          );
+        }
         sendProgress(
           session,
           `   Check console and stderr output above for details.`,

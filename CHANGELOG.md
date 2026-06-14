@@ -17,6 +17,10 @@ After a lot of release script improvements with V4, ROSI LTS is no longer on hia
 
 ### Below are the highlights of the original V3 release so user's can see what's changed from V2 -> V3 LTS.
 
+## Changes in `v3.6.5-LTS`:
+* **macOS:** Re-sign bundled yt-dlp with helper entitlements after packaging so PyInstaller can load its Python runtime on signed builds.
+* **macOS:** Fall back to Homebrew/system yt-dlp when the bundled binary fails its startup check.
+
 ## Changes in `v3.6.4-LTS`:
 * **Electron:** Updated electron to `42.2.0`.
 * **PKG:** Updated packages.
