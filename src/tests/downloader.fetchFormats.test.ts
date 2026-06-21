@@ -57,6 +57,14 @@ vi.mock("electron", () => ({
   },
 }));
 
+vi.mock("electron-log/main", () => ({
+  default: {
+    error: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+  },
+}));
+
 import {
   cancelActiveSession,
   cancelFormats,

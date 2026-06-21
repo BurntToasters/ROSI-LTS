@@ -1818,7 +1818,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         {
           label: "More Info",
           action: () =>
-            window.api.openExternal("https://help.rosie.run/rosi-lts/en-us/installing-ffmpeg"),
+            window.api.openExternal(
+              "https://help.rosie.run/rosi-lts/en-us/installing-ffmpeg",
+            ),
         },
         {
           label: "OK",
