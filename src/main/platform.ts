@@ -205,7 +205,8 @@ function resolveBundledYtdlpPath(): string {
         } catch {
           try {
             const tmpDir = path.join(app.getPath("temp"), "rosi-lts-bin");
-            if (!fs.existsSync(tmpDir)) fs.mkdirSync(tmpDir, { recursive: true });
+            if (!fs.existsSync(tmpDir))
+              fs.mkdirSync(tmpDir, { recursive: true });
             const tmpBin = path.join(tmpDir, ytdlpBinary);
             fs.copyFileSync(resolved, tmpBin);
             fs.chmodSync(tmpBin, 0o755);
