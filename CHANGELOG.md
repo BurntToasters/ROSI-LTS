@@ -7,9 +7,9 @@ After a lot of release script improvements with V4, ROSI LTS is no longer on hia
 
 | <img height="20" src="https://github.com/user-attachments/assets/340d360e-79b1-4c70-bfab-d944085f75df" /> Windows | <img height="20" src="https://github.com/user-attachments/assets/42d7e887-4616-4e8c-b1d3-e44e01340f8c" /> MacOS | <img height="20" src="https://github.com/user-attachments/assets/e0cc4f33-4516-408b-9c5c-be71a3ac316b" /> Linux |
 | :--- | :--- | :--- |
-| **[Universal EXE](https://github.com/BurntToasters/ROSI-LTS/releases/download/v3.6.4-LTS/ROSI-LTS-Windows.exe)** <br>*(Both x64 and arm64)* | **[Universal DMG](https://github.com/BurntToasters/ROSI-LTS/releases/download/v3.6.4-LTS/ROSI-LTS-MacOS-universal.dmg)** | **AppImage:** [x64](https://github.com/BurntToasters/ROSI-LTS/releases/download/v3.6.4-LTS/ROSI-LTS-Linux-x86_64.AppImage) / [arm64](https://github.com/BurntToasters/ROSI-LTS/releases/download/v3.6.4-LTS/ROSI-LTS-Linux-arm64.AppImage) |
-| **Other:** [x64](https://github.com/BurntToasters/ROSI-LTS/releases/download/v3.6.4-LTS/ROSI-LTS-Windows-x64.exe) / [arm64](https://github.com/BurntToasters/ROSI-LTS/releases/download/v3.6.4-LTS/ROSI-LTS-Windows-arm64.exe) | | **DEB:** [x64](https://github.com/BurntToasters/ROSI-LTS/releases/download/v3.6.4-LTS/ROSI-LTS-linux_amd64.deb) / [arm64](https://github.com/BurntToasters/ROSI-LTS/releases/download/v3.6.4-LTS/ROSI-LTS-linux_arm64.deb) |
-| | | **RPM:** [x64](https://github.com/BurntToasters/ROSI-LTS/releases/download/v3.6.4-LTS/ROSI-LTS-linux.x86_64.rpm) / [arm64](https://github.com/BurntToasters/ROSI-LTS/releases/download/v3.6.4-LTS/ROSI-LTS-linux.aarch64.rpm) |
+| **[Universal EXE](https://github.com/BurntToasters/ROSI-LTS/releases/download/v3.6.5-LTS/ROSI-LTS-Windows.exe)** <br>*(Both x64 and arm64)* | **[Universal DMG](https://github.com/BurntToasters/ROSI-LTS/releases/download/v3.6.5-LTS/ROSI-LTS-MacOS-universal.dmg)** | **AppImage:** [x64](https://github.com/BurntToasters/ROSI-LTS/releases/download/v3.6.5-LTS/ROSI-LTS-Linux-x86_64.AppImage) / [arm64](https://github.com/BurntToasters/ROSI-LTS/releases/download/v3.6.5-LTS/ROSI-LTS-Linux-arm64.AppImage) |
+| **Other:** [x64](https://github.com/BurntToasters/ROSI-LTS/releases/download/v3.6.5-LTS/ROSI-LTS-Windows-x64.exe) / [arm64](https://github.com/BurntToasters/ROSI-LTS/releases/download/v3.6.5-LTS/ROSI-LTS-Windows-arm64.exe) | | **DEB:** [x64](https://github.com/BurntToasters/ROSI-LTS/releases/download/v3.6.5-LTS/ROSI-LTS-linux_amd64.deb) / [arm64](https://github.com/BurntToasters/ROSI-LTS/releases/download/v3.6.5-LTS/ROSI-LTS-linux_arm64.deb) |
+| | | **RPM:** [x64](https://github.com/BurntToasters/ROSI-LTS/releases/download/v3.6.5-LTS/ROSI-LTS-linux.x86_64.rpm) / [arm64](https://github.com/BurntToasters/ROSI-LTS/releases/download/v3.6.5-LTS/ROSI-LTS-linux.aarch64.rpm) |
 
 ### ℹ️ Enjoying ROSI? Consider [❤️ Supporting Me! ❤️](https://rosie.run/support)
 
@@ -18,6 +18,7 @@ After a lot of release script improvements with V4, ROSI LTS is no longer on hia
 ### Below are the highlights of the original V3 release so user's can see what's changed from V2 -> V3 LTS.
 
 ## Changes in `v3.6.5-LTS`:
+* **PKG:** Updated packages.
 * **macOS:** Re-sign bundled yt-dlp with helper entitlements after packaging so PyInstaller can load its Python runtime on signed builds.
 * **macOS:** Fall back to Homebrew/system yt-dlp when the bundled binary fails its startup check.
 
