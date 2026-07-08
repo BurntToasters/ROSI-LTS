@@ -41,8 +41,7 @@ export interface IpcErrorPayload {
 }
 
 export type IpcResult<T = void> =
-  | { ok: true; data: T }
-  | { ok: false; error: IpcErrorPayload };
+  { ok: true; data: T } | { ok: false; error: IpcErrorPayload };
 
 export interface DownloadLifecycleState {
   cancelled: boolean;
@@ -90,9 +89,7 @@ export type UpdaterStatusEvent =
       status: "available";
       version: string;
       releaseNotes:
-        | string
-        | null
-        | import("builder-util-runtime").ReleaseNoteInfo[];
+        string | null | import("builder-util-runtime").ReleaseNoteInfo[];
       isBeta: boolean;
     }
   | { status: "not-available"; version: string; isBeta: boolean }
