@@ -12,8 +12,7 @@ const ALLOWED_GPU_TYPES = new Set(["auto", "nvidia", "amd", "intel"]);
 const ALLOWED_UPDATE_CHANNELS = new Set(["auto", "stable", "beta"]);
 
 type ValidationResult<T> =
-  | { ok: true; data: T }
-  | { ok: false; error: IpcErrorPayload };
+  { ok: true; data: T } | { ok: false; error: IpcErrorPayload };
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === "object" && !Array.isArray(value);
