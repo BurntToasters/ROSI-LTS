@@ -18,6 +18,8 @@ After a lot of release script improvements with V4, ROSI LTS is no longer on hia
 ### Below are the highlights of the original V3 release so user's can see what's changed from V2 -> V3 LTS.
 
 ## Changes in `v3.6.6-LTS:`
+- **NEW - Windows code signing:** WOO HOO!! Windows Codesigning is here!
+  - After a good while of not having it, Windows Binaries are now signed by Azure Artifact Signing!
 - **YT-DLP:** Updated `yt-dlp` to `v2026.07.04`.
 - **PKG:** Updated packages.
 
@@ -57,7 +59,7 @@ Rebuilt from the ground up to be more space-efficient and aesthetically pleasing
 ### 🔐 GPG Signing
 ROSI-LTS Binaries (`v2.1.2+`) are GPG signed. You can verify the authenticity of your download by downloading the installer, its accompanying sig, and the public key attached to this release.
 
-*ROSI's MacOS release is the only GitHub release that is fully codesigned by a developer cert from apple. If you are looking for a version of ROSI that is codesigned for windows, check out the [Microsoft Store](https://apps.microsoft.com/detail/9p4q134b2jw3?referrer=appbadge&mode=direct) version!*
+*ROSI-LTS's macOS releases are fully code-signed by a developer ID from Apple, and Windows releases are fully code-signed using Azure Artifact Signing.*
 
 # CURRENT VERSION:
 Users who are looking for the most current builds of ROSI should go to: [https://github.com/BurntToasters/ROSI](https://github.com/BurntToasters/ROSI)
