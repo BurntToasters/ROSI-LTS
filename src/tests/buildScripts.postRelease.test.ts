@@ -7,10 +7,15 @@ const {
   cleanReleaseArtifacts,
   copyReleaseAssets,
   getAfterPackLocation,
+  isBetaReleaseVersion,
   pathsEqual,
   run,
+  shouldSkipBetaMirror,
   verifyCopiedPath,
 } = require("../../build-scripts/post-release-assets.js");
+
+const STABLE_VERSION = "3.6.6";
+const BETA_VERSION = "3.6.6-beta.1";
 
 function makeTempDir(prefix: string) {
   return fs.mkdtempSync(path.join(os.tmpdir(), prefix));
@@ -52,10 +57,17 @@ describe("post-release-assets helpers", () => {
     tempDirs.push(releaseDir, destination);
     fs.writeFileSync(path.join(releaseDir, "ROSI-LTS-Linux-amd64.deb"), "deb");
 
-    expect(run({ releaseDir, env: { AFTER_PACK_LOC: destination } })).toEqual({
+    expect(
+      run({
+        releaseDir,
+        env: { AFTER_PACK_LOC: destination },
+        version: STABLE_VERSION,
+      }),
+    ).toEqual({
       mirrored: true,
       destination: path.resolve(destination),
       copiedEntries: 1,
+      skippedBetaMirror: false,
     });
     expect(
       fs.readFileSync(
@@ -63,6 +75,53 @@ describe("post-release-assets helpers", () => {
         "utf8",
       ),
     ).toBe("deb");
+  });
+
+  it("skips AFTER_PACK_LOC mirroring for beta versions unless overridden", () => {
+    const releaseDir = makeTempDir("rosi-lts-release-beta-");
+    const destination = makeTempDir("rosi-lts-release-beta-dest-");
+    tempDirs.push(releaseDir, destination);
+    fs.mkdirSync(path.join(releaseDir, "win-unpacked"));
+    fs.writeFileSync(path.join(releaseDir, "ROSI-LTS-Linux-amd64.deb"), "deb");
+
+    expect(isBetaReleaseVersion(BETA_VERSION)).toBe(true);
+    expect(shouldSkipBetaMirror({}, BETA_VERSION)).toBe(true);
+    expect(
+      shouldSkipBetaMirror({ OVERRIDE_BETA_MIRROR_SKIP: "1" }, BETA_VERSION),
+    ).toBe(false);
+
+    expect(
+      run({
+        releaseDir,
+        env: { AFTER_PACK_LOC: destination },
+        version: BETA_VERSION,
+      }),
+    ).toEqual({
+      mirrored: false,
+      destination: null,
+      skippedBetaMirror: true,
+    });
+    expect(fs.existsSync(path.join(releaseDir, "win-unpacked"))).toBe(false);
+    expect(
+      fs.existsSync(path.join(destination, "ROSI-LTS-Linux-amd64.deb")),
+    ).toBe(false);
+
+    fs.writeFileSync(path.join(releaseDir, "ROSI-LTS-Linux-amd64.deb"), "deb");
+    expect(
+      run({
+        releaseDir,
+        env: {
+          AFTER_PACK_LOC: destination,
+          OVERRIDE_BETA_MIRROR_SKIP: "1",
+        },
+        version: BETA_VERSION,
+      }),
+    ).toEqual({
+      mirrored: true,
+      destination: path.resolve(destination),
+      copiedEntries: 1,
+      skippedBetaMirror: false,
+    });
   });
 
   it("compares Windows paths without case sensitivity", () => {
