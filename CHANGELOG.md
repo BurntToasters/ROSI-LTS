@@ -19,6 +19,7 @@ After a lot of release script improvements with V4, ROSI LTS is no longer on hia
 
 ## Changes in `v3.6.7-LTS:`
 * **PKG:** Updated packages/deps.
+* **Codesigning - Win:** Added Azure Artifact Signing to ROSI-LTS.
 
 #  v3.0.0 Highlights
 
