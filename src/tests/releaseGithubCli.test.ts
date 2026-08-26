@@ -3,19 +3,32 @@ import path from "node:path";
 import { describe, expect, it } from "vitest";
 
 const { githubCliEnvironment } = require("../../build-scripts/github-cli.js");
-const { getReleaseUploadFiles } = require("../../build-scripts/release-upload-policy.js");
+const {
+  getReleaseUploadFiles,
+} = require("../../build-scripts/release-upload-policy.js");
 
 describe("GitHub CLI release transport", () => {
   it("uses stored authentication instead of token environment variables", () => {
     expect(
-      githubCliEnvironment({ PATH: "/bin", GH_TOKEN: "old", GITHUB_TOKEN: "old-too" }),
+      githubCliEnvironment({
+        PATH: "/bin",
+        GH_TOKEN: "old",
+        GITHUB_TOKEN: "old-too",
+      }),
     ).toEqual({ PATH: "/bin" });
   });
 
   it("uploads primary artifacts, updater metadata, checksums, and signatures", () => {
     expect(
       getReleaseUploadFiles(
-        ["ROSI-LTS.exe", "ROSI-LTS.exe.blockmap", "ROSI-LTS.exe.asc", "latest.yml", "SHA256SUMS-Windows.txt", "builder-debug.yml"],
+        [
+          "ROSI-LTS.exe",
+          "ROSI-LTS.exe.blockmap",
+          "ROSI-LTS.exe.asc",
+          "latest.yml",
+          "SHA256SUMS-Windows.txt",
+          "builder-debug.yml",
+        ],
         "/release",
       ),
     ).toEqual([
