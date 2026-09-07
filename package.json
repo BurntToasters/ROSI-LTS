@@ -1,8 +1,9 @@
 {
   "name": "rosi-lts",
-  "version": "3.6.8-LTS",
+  "version": "3.6.9-LTS",
   "private": true,
   "description": "Electron GUI for yt-dlp",
+  "desktopName": "com.burnttoasters.rosi-lts.desktop",
   "keywords": [
     "electron",
     "yt-dlp",
