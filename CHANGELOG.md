@@ -1,6 +1,3 @@
-### Welcome to ROSI LTS v3!
-After a lot of release script improvements with V4, ROSI LTS is no longer on hiatus! 
-
 # ⬇️ Downloads
 
 [<img src="https://get.microsoft.com/images/en-us%20dark.svg" width="175"/>](https://apps.microsoft.com/detail/9p4q134b2jw3?referrer=appbadge&mode=direct)
@@ -19,6 +16,7 @@ After a lot of release script improvements with V4, ROSI LTS is no longer on hia
 
 ## Changes in `v3.6.9-LTS:`
 * **PKG:** Updated packages/deps.
+* **Electron:** Bumped electron to the latest major branch `v44`.
 * **Linux:** Addressed a small linux bug where `desktopName` was not set for electron which could cause windows from `ROSI-LTS` to not sync correctly on linux.
 
 #  v3.0.0 Highlights
