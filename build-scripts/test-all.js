@@ -174,6 +174,10 @@ function runConfigChecks() {
       pkg.main === "dist/main/main.js",
       "package.json: main must be dist/main/main.js",
     );
+    assertConfig(
+      pkg.desktopName === "com.burnttoasters.rosi-lts.desktop",
+      "package.json: desktopName must be com.burnttoasters.rosi-lts.desktop",
+    );
 
     const baseConfigPath = path.join(
       process.cwd(),
@@ -211,6 +215,10 @@ function runConfigChecks() {
     assertConfig(
       Array.isArray(baseConfig.linux?.extraResources),
       "electron-builder.base.yml: linux.extraResources missing for yt-dlp binaries",
+    );
+    assertConfig(
+      baseConfig.linux?.syncDesktopName === true,
+      "electron-builder.base.yml: linux.syncDesktopName must be true",
     );
     assertConfig(
       Boolean(githubConfig.publish),
