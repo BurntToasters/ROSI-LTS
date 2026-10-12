@@ -12,9 +12,9 @@ As copyright holder, `rosie.run` may offer its own original code under additiona
 
 ## ROSI-LTS name and logo
 
-The `ROSI-LTS` name is project branding. Original logo artwork in this project is copyrighted by `rosie.run` and is not offered under the MPL-2.0 unless a file or notice says otherwise. The MPL-2.0 does not grant rights in trademarks or logos.
+The `ROSI-LTS` name and logo are project branding. They are not licensed under the MPL-2.0 or any other open source license for this project, and the MPL-2.0 does not grant trademark rights. Logo artwork is copyrighted by `rosie.run`.
 
-You may redistribute unmodified official ROSI-LTS releases with their included branding. Modified versions must use different branding unless you have written permission or applicable law permits the use. Do not use ROSI-LTS branding to suggest official status, endorsement, or affiliation without permission. Accurate references to ROSI-LTS and uses allowed by law remain permitted.
+You may redistribute unmodified official ROSI-LTS releases with their included branding. This permission is separate from the open source license and does not extend to modified versions. Modified versions must use different branding unless you have written permission or applicable law permits the use. Do not use ROSI-LTS branding to suggest official status, endorsement, or affiliation without permission. Accurate references to ROSI-LTS remain permitted.
 
 ## Third-party material
 
