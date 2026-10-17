@@ -16,6 +16,7 @@
 
 ## Changes in `v3.6.10-LTS:`
 * **PKG:** Updated packages and dependencies (normal maintenance LTS release).
+* **Update Scripting:** Added scripting from my other projects that bumps the changelog versions when run.
 
 ## Changes in `v3.6.9-LTS:`
 * **PKG:** Updated packages/deps.
