@@ -3,6 +3,7 @@ const path = require('path');
 
 require('dotenv').config();
 const { assertGitHubCliAuthenticated, githubApi } = require('./github-cli');
+const { PLACEHOLDER_NOTE } = require('./sync-changelog');
 
 const REPOSITORY_ROOT = path.resolve(__dirname, '..');
 const CHANGELOG_PATH = path.join(REPOSITORY_ROOT, 'CHANGELOG.md');
@@ -45,6 +46,11 @@ function readChangelogReleaseBody(changelogPath = CHANGELOG_PATH) {
   }
   if (!body.trim()) {
     throw new Error('CHANGELOG.md is empty; refusing to set blank release notes.');
+  }
+  if (body.includes(PLACEHOLDER_NOTE)) {
+    throw new Error(
+      'CHANGELOG.md still has placeholder notes "' + PLACEHOLDER_NOTE + '"; write them before releasing.'
+    );
   }
   return body;
 }
