@@ -58,8 +58,15 @@ function startFixtureServer(dir) {
 
   const server = http.createServer(async (req, res) => {
     const url = new URL(req.url || "/", "http://127.0.0.1");
-    const parts = url.pathname.split("/").filter(Boolean).map(decodeURIComponent);
-    requests.push({ method: req.method, path: url.pathname, range: req.headers.range || null });
+    const parts = url.pathname
+      .split("/")
+      .filter(Boolean)
+      .map(decodeURIComponent);
+    requests.push({
+      method: req.method,
+      path: url.pathname,
+      range: req.headers.range || null,
+    });
 
     const throttled = parts[0] === "throttled";
     const name = throttled ? parts[2] : parts[0] === "media" ? parts[1] : null;
@@ -76,11 +83,15 @@ function startFixtureServer(dir) {
     }
 
     const size = fs.statSync(file).size;
-    const range = req.headers.range ? parseRange(req.headers.range, size) : null;
+    const range = req.headers.range
+      ? parseRange(req.headers.range, size)
+      : null;
     const start = range ? range.start : 0;
     const end = range ? range.end : size - 1;
     const headers = {
-      "Content-Type": MIME_TYPES[path.extname(name).toLowerCase()] || "application/octet-stream",
+      "Content-Type":
+        MIME_TYPES[path.extname(name).toLowerCase()] ||
+        "application/octet-stream",
       "Content-Length": end - start + 1,
       "Accept-Ranges": "bytes",
     };

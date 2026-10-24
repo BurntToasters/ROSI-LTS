@@ -3,6 +3,7 @@ import * as fs from "fs";
 import { app, dialog } from "electron";
 import log from "electron-log/main";
 import type { Settings } from "../types";
+import { ALLOWED_BROWSERS, ALLOWED_CONVERT_FORMATS } from "./constants";
 
 const settingsPath = path.join(app.getPath("userData"), "settings.json");
 export const CURRENT_SETTINGS_VERSION = 1;
@@ -45,6 +46,18 @@ function readBoolean(value: unknown, fallback: boolean): boolean {
 
 function readString(value: unknown, fallback: string): string {
   return typeof value === "string" ? value : fallback;
+}
+
+function readConvertFormat(value: unknown): string {
+  return typeof value === "string" && ALLOWED_CONVERT_FORMATS.has(value)
+    ? value
+    : defaultSettings.convertFormat;
+}
+
+function readBrowserChoice(value: unknown): string {
+  return typeof value === "string" && ALLOWED_BROWSERS.has(value.toLowerCase())
+    ? value
+    : defaultSettings.browserChoice;
 }
 
 function readUpdateChannel(value: unknown): Settings["updateChannel"] {
@@ -93,10 +106,7 @@ export function migrateSettings(rawSettings: unknown): Settings {
       rawSettings.convertEnabled,
       defaultSettings.convertEnabled,
     ),
-    convertFormat: readString(
-      rawSettings.convertFormat,
-      defaultSettings.convertFormat,
-    ),
+    convertFormat: readConvertFormat(rawSettings.convertFormat),
     keepOriginalAfterConvert: readBoolean(
       rawSettings.keepOriginalAfterConvert,
       defaultSettings.keepOriginalAfterConvert,
@@ -109,10 +119,7 @@ export function migrateSettings(rawSettings: unknown): Settings {
       rawSettings.hookBrowser,
       defaultSettings.hookBrowser,
     ),
-    browserChoice: readString(
-      rawSettings.browserChoice,
-      defaultSettings.browserChoice,
-    ),
+    browserChoice: readBrowserChoice(rawSettings.browserChoice),
     animateBackground: readBoolean(
       rawSettings.animateBackground,
       defaultSettings.animateBackground,
@@ -178,7 +185,11 @@ export function saveSettings(
     const completeSettings = normalizeSettingsVersion(
       migrateSettings({ ...existing, ...newSettings }),
     );
-    fs.writeFileSync(settingsPath, JSON.stringify(completeSettings, null, 2));
+    const tmpPath = `${settingsPath}.tmp`;
+    fs.writeFileSync(tmpPath, JSON.stringify(completeSettings, null, 2), {
+      mode: 0o600,
+    });
+    fs.renameSync(tmpPath, settingsPath);
     return true;
   } catch (error) {
     log.error("Failed to save settings:", error);

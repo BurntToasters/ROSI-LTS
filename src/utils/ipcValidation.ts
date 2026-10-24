@@ -7,6 +7,11 @@ import type {
   Settings,
 } from "../types";
 import { isSafeExternalUrl, isSafeHttpUrl } from "./validation";
+import {
+  ALLOWED_BROWSERS,
+  ALLOWED_CONVERT_FORMATS,
+  FORMAT_ID_PATTERN,
+} from "../main/constants";
 
 const ALLOWED_GPU_TYPES = new Set(["auto", "nvidia", "amd", "intel"]);
 const ALLOWED_UPDATE_CHANNELS = new Set(["auto", "stable", "beta"]);
@@ -20,6 +25,11 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 
 function isOptionalString(value: unknown): value is string | undefined {
   return value === undefined || typeof value === "string";
+}
+
+// The renderer sends null for unused optional fields; treat it as not set.
+function optionalField(value: unknown): unknown {
+  return value === null ? undefined : value;
 }
 
 function isBoolean(value: unknown): value is boolean {
@@ -75,15 +85,12 @@ export function validateDownloadRequestPayload(
     };
   }
 
-  const {
-    url,
-    outputPath,
-    ffmpegPath,
-    convertFormat,
-    keepOriginal,
-    videoFormat,
-    audioFormat,
-  } = value;
+  const { url, outputPath } = value;
+  const ffmpegPath = optionalField(value.ffmpegPath);
+  const convertFormat = optionalField(value.convertFormat);
+  const keepOriginal = optionalField(value.keepOriginal);
+  const videoFormat = optionalField(value.videoFormat);
+  const audioFormat = optionalField(value.audioFormat);
 
   if (!isString(url) || !isSafeHttpUrl(url)) {
     return {
@@ -123,6 +130,19 @@ export function validateDownloadRequestPayload(
       ),
     };
   }
+  const convertFormatValue = convertFormat?.trim() || undefined;
+  if (
+    convertFormatValue !== undefined &&
+    !ALLOWED_CONVERT_FORMATS.has(convertFormatValue)
+  ) {
+    return {
+      ok: false,
+      error: buildError(
+        "VALIDATION_ERROR",
+        "convertFormat must be one of: mp4, mov, mp3, m4a.",
+      ),
+    };
+  }
   if (keepOriginal !== undefined && !isBoolean(keepOriginal)) {
     return {
       ok: false,
@@ -150,6 +170,32 @@ export function validateDownloadRequestPayload(
       ),
     };
   }
+  const videoFormatValue = videoFormat?.trim() || undefined;
+  if (
+    videoFormatValue !== undefined &&
+    !FORMAT_ID_PATTERN.test(videoFormatValue)
+  ) {
+    return {
+      ok: false,
+      error: buildError(
+        "VALIDATION_ERROR",
+        "videoFormat must be a valid yt-dlp format ID.",
+      ),
+    };
+  }
+  const audioFormatValue = audioFormat?.trim() || undefined;
+  if (
+    audioFormatValue !== undefined &&
+    !FORMAT_ID_PATTERN.test(audioFormatValue)
+  ) {
+    return {
+      ok: false,
+      error: buildError(
+        "VALIDATION_ERROR",
+        "audioFormat must be a valid yt-dlp format ID.",
+      ),
+    };
+  }
 
   return {
     ok: true,
@@ -157,10 +203,10 @@ export function validateDownloadRequestPayload(
       url: url.trim(),
       outputPath: outputPath.trim(),
       ffmpegPath: ffmpegPath?.trim() || undefined,
-      convertFormat: convertFormat?.trim() || undefined,
+      convertFormat: convertFormatValue,
       keepOriginal,
-      videoFormat: videoFormat?.trim() || undefined,
-      audioFormat: audioFormat?.trim() || undefined,
+      videoFormat: videoFormatValue,
+      audioFormat: audioFormatValue,
     },
   };
 }
@@ -278,6 +324,37 @@ export function validateSettingsPatchPayload(
         };
       }
       patch.updateChannel = rawValue as Settings["updateChannel"];
+      continue;
+    }
+
+    if (rawKey === "convertFormat") {
+      if (!isString(rawValue) || !ALLOWED_CONVERT_FORMATS.has(rawValue)) {
+        return {
+          ok: false,
+          error: buildError(
+            "VALIDATION_ERROR",
+            "convertFormat must be one of: mp4, mov, mp3, m4a.",
+          ),
+        };
+      }
+      patch.convertFormat = rawValue;
+      continue;
+    }
+
+    if (rawKey === "browserChoice") {
+      if (
+        !isString(rawValue) ||
+        !ALLOWED_BROWSERS.has(rawValue.toLowerCase())
+      ) {
+        return {
+          ok: false,
+          error: buildError(
+            "VALIDATION_ERROR",
+            "browserChoice is not an allowed browser.",
+          ),
+        };
+      }
+      patch.browserChoice = rawValue;
       continue;
     }
 

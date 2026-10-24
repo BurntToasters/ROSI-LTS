@@ -7,6 +7,7 @@ const {
   startDownloadIpc,
 } = require("../lib/electronApp");
 const { probeCodec } = require("../lib/ffmpeg");
+const { ytdlpOutputName } = require("../lib/files");
 
 module.exports = {
   id: "S3",
@@ -36,7 +37,9 @@ module.exports = {
       ctx.check(
         "UI download with conversion starts",
         outcome.kind === "complete",
-        outcome.kind === "complete" ? outcome.message : `${outcome.kind}: ${outcome.message}`,
+        outcome.kind === "complete"
+          ? outcome.message
+          : `${outcome.kind}: ${outcome.message}`,
       );
     });
 
@@ -45,24 +48,39 @@ module.exports = {
     const saved = await page.evaluate(() =>
       window.api.saveSettings({ convertEnabled: true, convertFormat: "mp3" }),
     );
-    ctx.check("settings saved with convertEnabled and mp3", saved && saved.ok === true, JSON.stringify(saved));
+    ctx.check(
+      "settings saved with convertEnabled and mp3",
+      saved && saved.ok === true,
+      JSON.stringify(saved),
+    );
 
     const before = await completionCount(page);
-    await startDownloadIpc(page, { url: ctx.url("sample.mp4"), outputPath: downloadDir });
+    await startDownloadIpc(page, {
+      url: ctx.url("sample.mp4"),
+      outputPath: downloadDir,
+    });
     const status = await waitForCompletion(page, before, 90_000);
-    ctx.check("conversion reports success", /Conversion complete/.test(status), status);
+    ctx.check(
+      "conversion reports success",
+      /Conversion complete/.test(status),
+      status,
+    );
 
-    const mp3 = path.join(downloadDir, "sample.mp3");
+    const mp3 = path.join(downloadDir, ytdlpOutputName("sample.mp3"));
     const exists = fs.existsSync(mp3);
     ctx.check("sample.mp3 exists in download dir", exists, mp3);
     if (exists) {
       const codecs = probeCodec(mp3);
-      ctx.check("mp3 contains a single mp3 audio stream", codecs.join(",") === "mp3,audio", codecs.join(","));
-      ctx.recordFile("sample.mp3", mp3);
+      ctx.check(
+        "mp3 contains a single mp3 audio stream",
+        codecs.join(",") === "mp3,audio",
+        codecs.join(","),
+      );
+      ctx.recordFile(ytdlpOutputName("sample.mp3"), mp3);
     }
     ctx.check(
       "original download kept (keepOriginalAfterConvert default)",
-      fs.existsSync(path.join(downloadDir, "sample.mp4")),
+      fs.existsSync(path.join(downloadDir, ytdlpOutputName("sample.mp4"))),
       "",
     );
   },

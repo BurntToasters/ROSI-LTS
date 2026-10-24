@@ -15,11 +15,36 @@ const BASE_SETTINGS = {
 
 const LAUNCH_TIMEOUT_MS = 60_000;
 
+// Background mode asks the app to keep its windows from taking focus, so local
+// runs do not pop over the maintainer's work. The app reads
+// ROSI_LTS_E2E_BACKGROUND; the rules are documented in FAILURE-MODES.md.
+function resolveBackgroundMode(env = process.env) {
+  const explicit = env.ROSI_LTS_E2E_BACKGROUND;
+  if (explicit === "1" || explicit === "0") {
+    return {
+      enabled: explicit === "1",
+      value: explicit,
+      reason: `explicit ROSI_LTS_E2E_BACKGROUND=${explicit}`,
+    };
+  }
+  const off = (reason) => ({ enabled: false, value: "0", reason });
+  if (process.platform !== "darwin") return off("not macOS");
+  if (env.ROSI_LTS_E2E_FOREGROUND === "1") {
+    return off("ROSI_LTS_E2E_FOREGROUND=1");
+  }
+  const ci = env.CI;
+  if (ci !== undefined && ci !== "" && ci !== "false" && ci !== "0") {
+    return off(`CI=${ci}`);
+  }
+  return { enabled: true, value: "1", reason: "macOS, not CI" };
+}
+
 // ELECTRON_RUN_AS_NODE makes the Electron binary behave as plain Node, so the
 // app would never start. Some shells (including IDE-hosted ones) set it.
 function appEnv() {
   const env = { ...process.env };
   delete env.ELECTRON_RUN_AS_NODE;
+  env.ROSI_LTS_E2E_BACKGROUND = resolveBackgroundMode().value;
   return env;
 }
 
@@ -38,7 +63,10 @@ function withTimeout(promise, ms, message) {
 // Points the app's download folder at `dir` without showing a native dialog.
 async function stubDownloadDialog(electronApp, dir) {
   await electronApp.evaluate(({ dialog }, folder) => {
-    dialog.showOpenDialog = async () => ({ canceled: false, filePaths: [folder] });
+    dialog.showOpenDialog = async () => ({
+      canceled: false,
+      filePaths: [folder],
+    });
   }, dir);
 }
 
@@ -124,7 +152,9 @@ async function startDownloadIpc(page, options) {
 // Returns the newest main-process progress line containing `text`, or null.
 async function findProgressLine(page, text) {
   return page.evaluate((needle) => {
-    const lines = window.__rosiE2E.progress.filter((line) => line.includes(needle));
+    const lines = window.__rosiE2E.progress.filter((line) =>
+      line.includes(needle),
+    );
     return lines.length ? lines.at(-1) : null;
   }, text);
 }
@@ -165,6 +195,7 @@ async function launchApp({ repoRoot, userDataDir, downloadDir, seed }) {
     downloadDir,
     closed: false,
     userDataHonored: false,
+    backgroundMode: resolveBackgroundMode(),
   };
 
   try {
@@ -205,6 +236,7 @@ async function closeApp(session) {
 
 module.exports = {
   BASE_SETTINGS,
+  resolveBackgroundMode,
   sleep,
   withTimeout,
   launchApp,

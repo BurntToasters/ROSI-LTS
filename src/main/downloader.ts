@@ -1,5 +1,7 @@
 import * as path from "path";
 import * as fs from "fs";
+import * as os from "os";
+import * as crypto from "crypto";
 import sanitize from "sanitize-filename";
 import { dialog } from "electron";
 import log from "electron-log/main";
@@ -28,6 +30,7 @@ import {
   MAX_ERROR_BUFFER,
   FORMAT_FETCH_TIMEOUT_MS,
 } from "./constants";
+import { killChildProcess } from "./processKill";
 import type { ChildProcess } from "child_process";
 import type {
   DownloadSession,
@@ -46,6 +49,41 @@ function isActiveSession(session: DownloadSession | null) {
   return Boolean(
     session && activeDownloadSession && activeDownloadSession.id === session.id,
   );
+}
+
+function createPrintFilePath(sessionId: number) {
+  const suffix = crypto.randomBytes(6).toString("hex");
+  return path.join(
+    os.tmpdir(),
+    `rosi-lts-${process.pid}-${sessionId}-${suffix}.txt`,
+  );
+}
+
+function removePrintFile(session: DownloadSession) {
+  try {
+    fs.unlinkSync(session.printFilePath);
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code !== "ENOENT") {
+      log.warn(`Could not remove ${session.printFilePath}:`, error);
+    }
+  }
+}
+
+function takePrintedPath(session: DownloadSession): string {
+  try {
+    const filePath = fs
+      .readFileSync(session.printFilePath, "utf8")
+      .split("\n")
+      .map((line) => line.trim())
+      .filter((line) => line !== "")
+      .pop();
+    if (!filePath) {
+      throw new Error("Could not find a valid filepath in yt-dlp's output.");
+    }
+    return filePath;
+  } finally {
+    removePrintFile(session);
+  }
 }
 
 function safeSend(
@@ -69,6 +107,7 @@ function completeSession(
   statusMessage: string,
   progressMessage: string | null = null,
 ) {
+  if (session) removePrintFile(session);
   if (!session || !isActiveSession(session)) return;
   if (!shouldEmitTerminalEvent(session.lifecycle)) return;
   session.lifecycle = markTerminalEventEmitted(session.lifecycle);
@@ -81,23 +120,15 @@ function completeSession(
   ffmpegProcess = null;
 }
 
-function killProcess(proc: ChildProcess | null, label: string) {
-  if (!proc) return;
-  try {
-    proc.kill();
-  } catch (error) {
-    log.error(`Error killing ${label} process:`, error);
-  }
-}
-
 export function cancelActiveSession(notify = true) {
   if (!activeDownloadSession) return;
   const session = activeDownloadSession;
   session.lifecycle = markDownloadCancelled(session.lifecycle);
-  killProcess(session.ffmpegProcess, "ffmpeg");
-  killProcess(session.ytdlpProcess, "yt-dlp");
+  killChildProcess(session.ffmpegProcess, "ffmpeg");
+  killChildProcess(session.ytdlpProcess, "yt-dlp");
   session.ffmpegProcess = null;
   session.ytdlpProcess = null;
+  removePrintFile(session);
 
   if (!isActiveSession(session)) return;
 
@@ -117,18 +148,16 @@ export function cancelActiveSession(notify = true) {
 }
 
 export function killAllProcesses() {
-  if (ytdlpProcess) {
-    try {
-      ytdlpProcess.kill();
-    } catch {}
-    ytdlpProcess = null;
+  killChildProcess(ytdlpProcess, "yt-dlp");
+  killChildProcess(ffmpegProcess, "ffmpeg");
+  ytdlpProcess = null;
+  ffmpegProcess = null;
+  if (formatsProcess) {
+    formatsProcess.cancelled = true;
+    killChildProcess(formatsProcess.proc, "formats");
+    formatsProcess = null;
   }
-  if (ffmpegProcess) {
-    try {
-      ffmpegProcess.kill();
-    } catch {}
-    ffmpegProcess = null;
-  }
+  if (activeDownloadSession) removePrintFile(activeDownloadSession);
 }
 
 export function fetchFormats(ytdlpPath: string, url: string): Promise<string> {
@@ -140,21 +169,22 @@ export function fetchFormats(ytdlpPath: string, url: string): Promise<string> {
       return reject(`yt-dlp binary not found at ${ytdlpPath}`);
     }
     if (formatsProcess?.proc && !formatsProcess.proc.killed) {
-      try {
-        formatsProcess.cancelled = true;
-        formatsProcess.proc.kill();
-      } catch {}
+      formatsProcess.cancelled = true;
+      killChildProcess(formatsProcess.proc, "formats");
     }
-    const proc = spawnWithEnv(ytdlpPath, ["-F", url]);
-    formatsProcess = { proc, cancelled: false };
+    const proc = spawnWithEnv(ytdlpPath, ["-F", url], {
+      detached: !isWindows,
+    });
+    const entry: FormatsProcess = { proc, cancelled: false };
+    formatsProcess = entry;
     let outputData = "";
     let errorData = "";
+    proc.stdout?.setEncoding("utf8");
+    proc.stderr?.setEncoding("utf8");
 
     const timeout = setTimeout(() => {
-      try {
-        formatsProcess!.cancelled = true;
-        proc.kill();
-      } catch {}
+      entry.cancelled = true;
+      killChildProcess(proc, "formats-timeout");
       reject(
         "Format fetch timed out after 60 seconds. The server may be slow or unresponsive.",
       );
@@ -168,9 +198,8 @@ export function fetchFormats(ytdlpPath: string, url: string): Promise<string> {
     });
     proc.on("close", (code) => {
       clearTimeout(timeout);
-      const wasCancelled =
-        formatsProcess?.proc === proc && formatsProcess.cancelled;
-      if (formatsProcess?.proc === proc) {
+      const wasCancelled = entry.cancelled;
+      if (formatsProcess === entry) {
         formatsProcess = null;
       }
       if (wasCancelled) {
@@ -187,7 +216,7 @@ export function fetchFormats(ytdlpPath: string, url: string): Promise<string> {
     });
     proc.on("error", (err) => {
       clearTimeout(timeout);
-      if (formatsProcess?.proc === proc) {
+      if (formatsProcess === entry) {
         formatsProcess = null;
       }
       reject(`Failed to start yt-dlp: ${err.message}`);
@@ -198,9 +227,7 @@ export function fetchFormats(ytdlpPath: string, url: string): Promise<string> {
 export function cancelFormats() {
   if (formatsProcess?.proc && !formatsProcess.proc.killed) {
     formatsProcess.cancelled = true;
-    try {
-      formatsProcess.proc.kill();
-    } catch {}
+    killChildProcess(formatsProcess.proc, "formats");
   }
 }
 
@@ -271,6 +298,7 @@ async function runConversion(
     );
 
     const videoEncoder = await resolveVideoEncoder(effectiveSettings);
+    if (!isActiveSession(session)) return;
     const useGpu = effectiveSettings.gpuAcceleration && videoEncoder !== "copy";
 
     if (useGpu) {
@@ -284,8 +312,12 @@ async function runConversion(
       videoEncoder,
     );
 
-    ffmpegProcess = spawnWithEnv(ffmpegCommand, ffmpegArgs);
+    ffmpegProcess = spawnWithEnv(ffmpegCommand, ffmpegArgs, {
+      detached: !isWindows,
+    });
     session.ffmpegProcess = ffmpegProcess;
+    ffmpegProcess.stdout?.setEncoding("utf8");
+    ffmpegProcess.stderr?.setEncoding("utf8");
 
     ffmpegProcess.stdout?.on("data", (data) => {
       if (!isActiveSession(session)) return;
@@ -417,6 +449,7 @@ export function startDownload(
     lifecycle: createDownloadLifecycleState(),
     ytdlpProcess: null,
     ffmpegProcess: null,
+    printFilePath: createPrintFilePath(downloadSessionCounter),
   };
   activeDownloadSession = session;
 
@@ -489,27 +522,25 @@ export function startDownload(
       settings: effectiveSettings,
       options,
       ffmpegLocation,
+      printFilePath: session.printFilePath,
     });
     statusMessages.forEach((message) => sendProgress(session, message));
 
     sendProgress(session, `🚀 Starting download: ${url}`);
     sendProgress(session, `   Command: ${ytdlpBinary} ${ytdlpArgs.join(" ")}`);
     ytdlpProcess = spawnWithEnv(ytdlpPath, ytdlpArgs, {
-      env: { ...process.env, PYTHONUNBUFFERED: "1" },
+      env: { PYTHONUNBUFFERED: "1" },
+      detached: !isWindows,
     });
     session.ytdlpProcess = ytdlpProcess;
+    ytdlpProcess.stdout?.setEncoding("utf8");
+    ytdlpProcess.stderr?.setEncoding("utf8");
 
-    let downloadOutputData = "";
     let downloadErrorData = "";
 
     ytdlpProcess.stdout?.on("data", (data) => {
       if (!isActiveSession(session)) return;
-      const message = data.toString();
-      if (downloadOutputData.length > MAX_OUTPUT_BUFFER) {
-        downloadOutputData = downloadOutputData.slice(-MAX_OUTPUT_BUFFER / 2);
-      }
-      downloadOutputData += message;
-      sendProgress(session, message.trim());
+      sendProgress(session, data.toString().trim());
     });
 
     ytdlpProcess.stderr?.on("data", (data) => {
@@ -522,7 +553,10 @@ export function startDownload(
     });
 
     ytdlpProcess.on("close", (code) => {
-      if (!isActiveSession(session)) return;
+      if (!isActiveSession(session)) {
+        removePrintFile(session);
+        return;
+      }
       session.ytdlpProcess = null;
       ytdlpProcess = null;
 
@@ -561,15 +595,7 @@ export function startDownload(
 
       let downloadedFilePath: string;
       try {
-        const outputLines = downloadOutputData.trim().split("\n");
-        const extractedPath =
-          outputLines.filter((line) => line.trim() !== "").pop() ?? null;
-        if (!extractedPath) {
-          throw new Error(
-            "Could not find a valid filepath in yt-dlp's output.",
-          );
-        }
-        downloadedFilePath = extractedPath;
+        downloadedFilePath = takePrintedPath(session);
         sendProgress(
           session,
           `✅ Download finished. Identified file: ${downloadedFilePath}`,

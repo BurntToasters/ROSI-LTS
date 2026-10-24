@@ -54,6 +54,7 @@ export interface DownloadSession {
   lifecycle: DownloadLifecycleState;
   ytdlpProcess: import("child_process").ChildProcess | null;
   ffmpegProcess: import("child_process").ChildProcess | null;
+  printFilePath: string;
 }
 
 export interface DownloadRequestOptions {

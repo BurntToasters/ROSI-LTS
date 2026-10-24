@@ -56,6 +56,7 @@ interface BuildYtdlpArgsInput {
   settings: Settings;
   options: DownloadRequestOptions;
   ffmpegLocation: string | null;
+  printFilePath: string;
 }
 
 export interface BuildYtdlpArgsResult {
@@ -69,13 +70,17 @@ export function buildYtdlpArgs({
   settings,
   options,
   ffmpegLocation,
+  printFilePath,
 }: BuildYtdlpArgsInput): BuildYtdlpArgsResult {
   const args = [
     "-P",
     normalizedDownloadDir,
     "--no-playlist",
-    "--print",
+    // --quiet keeps stdout to progress lines, as --print implied before.
+    "--quiet",
+    "--print-to-file",
     "after_move:filepath",
+    printFilePath,
     "--newline",
     "--progress",
     "--progress-delta",

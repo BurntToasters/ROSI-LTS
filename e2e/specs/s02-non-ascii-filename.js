@@ -6,9 +6,10 @@ const {
   findProgressLine,
   startDownloadIpc,
 } = require("../lib/electronApp");
-const { sha256File } = require("../lib/files");
+const { sha256File, ytdlpOutputName } = require("../lib/files");
 
 const TITLE = "テスト動画.mp4";
+const EXPECTED_NAME = ytdlpOutputName(TITLE);
 
 module.exports = {
   id: "S2",
@@ -19,25 +20,40 @@ module.exports = {
     const { page, downloadDir } = session;
 
     const before = await completionCount(page);
-    await startDownloadIpc(page, { url: ctx.url(TITLE), outputPath: downloadDir });
+    await startDownloadIpc(page, {
+      url: ctx.url(TITLE),
+      outputPath: downloadDir,
+    });
     const status = await waitForCompletion(page, before);
-    ctx.check("download completes with success status", /Download complete/.test(status), status);
+    ctx.check(
+      "download completes with success status",
+      /Download complete/.test(status),
+      status,
+    );
 
     const identified = await findProgressLine(page, "Identified file:");
     const match = identified && /Identified file:\s*(.+)$/.exec(identified);
     const reported = match ? match[1].trim() : null;
-    ctx.check("app reports an identified file path", Boolean(reported), identified || "no line");
+    ctx.check(
+      "app reports an identified file path",
+      Boolean(reported),
+      identified || "no line",
+    );
     if (!reported) return;
 
-    ctx.check("reported path exists on disk", fs.existsSync(reported), reported);
+    ctx.check(
+      "reported path exists on disk",
+      fs.existsSync(reported),
+      reported,
+    );
     ctx.check(
       "reported file is in the download dir",
       path.dirname(fs.realpathSync(reported)) === fs.realpathSync(downloadDir),
       path.dirname(reported),
     );
     ctx.check(
-      "reported basename is the exact non-ASCII title",
-      path.basename(reported) === TITLE,
+      "reported basename is the expected non-ASCII name",
+      path.basename(reported) === EXPECTED_NAME,
       JSON.stringify(path.basename(reported)),
     );
     ctx.check(

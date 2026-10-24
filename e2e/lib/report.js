@@ -6,7 +6,9 @@ function status(passed) {
 }
 
 function escapeCell(text) {
-  return String(text ?? "").replace(/\|/g, "\\|").replace(/\n/g, "<br>");
+  return String(text ?? "")
+    .replace(/\|/g, "\\|")
+    .replace(/\n/g, "<br>");
 }
 
 function renderMarkdown(report) {
@@ -16,7 +18,9 @@ function renderMarkdown(report) {
   lines.push("");
   lines.push(`Generated: ${report.generatedAt}  `);
   lines.push(`Total duration: ${(report.durationMs / 1000).toFixed(1)} s  `);
-  lines.push(`Result: ${report.summary.passed} passed, ${report.summary.failed} failed of ${report.summary.total}`);
+  lines.push(
+    `Result: ${report.summary.passed} passed, ${report.summary.failed} failed of ${report.summary.total}`,
+  );
   lines.push("");
   lines.push("## Environment");
   lines.push("");
@@ -49,7 +53,9 @@ function renderMarkdown(report) {
     lines.push("");
     lines.push(`Result: **${status(spec.passed)}**  `);
     lines.push(`Duration: ${(spec.durationMs / 1000).toFixed(1)} s  `);
-    lines.push(`Screenshot: ${spec.screenshot ? `[${path.basename(spec.screenshot)}](${path.basename(spec.screenshot)})` : "not captured"}  `);
+    lines.push(
+      `Screenshot: ${spec.screenshot ? `[${path.basename(spec.screenshot)}](${path.basename(spec.screenshot)})` : "not captured"}  `,
+    );
     if (spec.failureMessage) {
       lines.push("");
       lines.push("Failure:");
@@ -63,7 +69,9 @@ function renderMarkdown(report) {
       lines.push("| Check | Result | Detail |");
       lines.push("| --- | --- | --- |");
       for (const check of spec.checks) {
-        lines.push(`| ${escapeCell(check.label)} | ${status(check.passed)} | ${escapeCell(check.detail)} |`);
+        lines.push(
+          `| ${escapeCell(check.label)} | ${status(check.passed)} | ${escapeCell(check.detail)} |`,
+        );
       }
     }
     if (spec.files.length) {
@@ -71,7 +79,9 @@ function renderMarkdown(report) {
       lines.push("| File | Bytes | SHA-256 |");
       lines.push("| --- | --- | --- |");
       for (const file of spec.files) {
-        lines.push(`| ${escapeCell(file.label)} | ${file.bytes} | ${file.sha256} |`);
+        lines.push(
+          `| ${escapeCell(file.label)} | ${file.bytes} | ${file.sha256} |`,
+        );
       }
     }
     if (spec.notes.length) {
@@ -86,8 +96,14 @@ function renderMarkdown(report) {
 
 function writeReport(artifactsDir, report) {
   fs.mkdirSync(artifactsDir, { recursive: true });
-  fs.writeFileSync(path.join(artifactsDir, "report.json"), JSON.stringify(report, null, 2) + "\n");
-  fs.writeFileSync(path.join(artifactsDir, "report.md"), renderMarkdown(report));
+  fs.writeFileSync(
+    path.join(artifactsDir, "report.json"),
+    JSON.stringify(report, null, 2) + "\n",
+  );
+  fs.writeFileSync(
+    path.join(artifactsDir, "report.md"),
+    renderMarkdown(report),
+  );
 }
 
 module.exports = { writeReport, renderMarkdown };

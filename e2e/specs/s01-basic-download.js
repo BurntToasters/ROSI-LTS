@@ -6,7 +6,7 @@ const {
   waitForUiOutcome,
   startDownloadIpc,
 } = require("../lib/electronApp");
-const { sha256File } = require("../lib/files");
+const { sha256File, ytdlpOutputName } = require("../lib/files");
 
 module.exports = {
   id: "S1",
@@ -31,17 +31,26 @@ module.exports = {
       ctx.check(
         "UI download button starts a download",
         outcome.kind === "complete",
-        outcome.kind === "complete" ? outcome.message : `${outcome.kind}: ${outcome.message}`,
+        outcome.kind === "complete"
+          ? outcome.message
+          : `${outcome.kind}: ${outcome.message}`,
       );
     });
 
     // Main-process path: same IPC the UI uses, with unused fields omitted.
     const before = await completionCount(page);
-    await startDownloadIpc(page, { url: ctx.url("sample.mp4"), outputPath: downloadDir });
+    await startDownloadIpc(page, {
+      url: ctx.url("sample.mp4"),
+      outputPath: downloadDir,
+    });
     const status = await waitForCompletion(page, before);
-    ctx.check("download completes with success status", /Download complete/.test(status), status);
+    ctx.check(
+      "download completes with success status",
+      /Download complete/.test(status),
+      status,
+    );
 
-    const file = path.join(downloadDir, "sample.mp4");
+    const file = path.join(downloadDir, ytdlpOutputName("sample.mp4"));
     const exists = fs.existsSync(file);
     ctx.check("downloaded file exists in download dir", exists, file);
     if (exists) {
@@ -50,7 +59,7 @@ module.exports = {
         sha256File(file) === ctx.fixtureSha("sample.mp4"),
         file,
       );
-      ctx.recordFile("sample.mp4", file);
+      ctx.recordFile(ytdlpOutputName("sample.mp4"), file);
     }
   },
 };

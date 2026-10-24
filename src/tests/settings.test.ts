@@ -5,6 +5,7 @@ const {
   existsSyncMock,
   readFileSyncMock,
   writeFileSyncMock,
+  renameSyncMock,
   mkdirSyncMock,
   showErrorBoxMock,
   logErrorMock,
@@ -13,6 +14,7 @@ const {
     existsSyncMock: vi.fn(),
     readFileSyncMock: vi.fn(),
     writeFileSyncMock: vi.fn(),
+    renameSyncMock: vi.fn(),
     mkdirSyncMock: vi.fn(),
     showErrorBoxMock: vi.fn(),
     logErrorMock: vi.fn(),
@@ -23,6 +25,7 @@ vi.mock("fs", () => ({
   existsSync: existsSyncMock,
   readFileSync: readFileSyncMock,
   writeFileSync: writeFileSyncMock,
+  renameSync: renameSyncMock,
   mkdirSync: mkdirSyncMock,
 }));
 

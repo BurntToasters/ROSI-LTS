@@ -16,7 +16,8 @@ function listProcesses() {
 function findProcessesWithTokens(tokens) {
   return listProcesses().filter(
     (proc) =>
-      proc.pid !== process.pid && tokens.some((token) => proc.command.includes(token)),
+      proc.pid !== process.pid &&
+      tokens.some((token) => proc.command.includes(token)),
   );
 }
 
@@ -30,4 +31,8 @@ function killProcessesWithTokens(tokens) {
   }
 }
 
-module.exports = { listProcesses, findProcessesWithTokens, killProcessesWithTokens };
+module.exports = {
+  listProcesses,
+  findProcessesWithTokens,
+  killProcessesWithTokens,
+};

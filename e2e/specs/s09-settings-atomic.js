@@ -28,34 +28,67 @@ module.exports = {
     const file = path.join(userDataDir, "settings.json");
 
     const saved = await page.evaluate(() =>
-      window.api.saveSettings({ showConsoleOutput: true, consoleCollapsed: true }),
+      window.api.saveSettings({
+        showConsoleOutput: true,
+        consoleCollapsed: true,
+      }),
     );
-    ctx.check("saveSettings reports ok", saved && saved.ok === true, JSON.stringify(saved));
+    ctx.check(
+      "saveSettings reports ok",
+      saved && saved.ok === true,
+      JSON.stringify(saved),
+    );
 
     const exists = fs.existsSync(file);
-    ctx.check("settings.json exists in the isolated userData dir", exists, file);
+    ctx.check(
+      "settings.json exists in the isolated userData dir",
+      exists,
+      file,
+    );
     if (exists) {
       const parsed = tryParse(file);
-      ctx.check("settings.json parses as JSON after save", parsed.value !== undefined, parsed.error || "");
+      ctx.check(
+        "settings.json parses as JSON after save",
+        parsed.value !== undefined,
+        parsed.error || "",
+      );
       ctx.check(
         "saved values are persisted",
-        parsed.value && parsed.value.showConsoleOutput === true && parsed.value.consoleCollapsed === true,
+        parsed.value &&
+          parsed.value.showConsoleOutput === true &&
+          parsed.value.consoleCollapsed === true,
         "",
       );
     }
     const leftovers = settingsTempLeftovers(userDataDir);
-    ctx.check("no settings temp file remains after save", leftovers.length === 0, leftovers.join(", ") || "none");
+    ctx.check(
+      "no settings temp file remains after save",
+      leftovers.length === 0,
+      leftovers.join(", ") || "none",
+    );
 
     // Several saves in a row, to catch a stale temp file left by an earlier one.
     for (let i = 0; i < 5; i += 1) {
-      await page.evaluate((n) => window.api.saveSettings({ notifications: n % 2 === 0 }), i);
+      await page.evaluate(
+        (n) => window.api.saveSettings({ showConsoleOutput: n % 2 === 0 }),
+        i,
+      );
     }
     const afterMany = tryParse(file);
-    ctx.check("settings.json parses after repeated saves", afterMany.value !== undefined, afterMany.error || "");
+    ctx.check(
+      "settings.json parses after repeated saves",
+      afterMany.value !== undefined,
+      afterMany.error || "",
+    );
 
+    await ctx.screenshot();
     await closeApp(session);
     const afterQuit = tryParse(file);
-    ctx.check("settings.json parses after app quit", afterQuit.value !== undefined, afterQuit.error || "");
+    ctx.check(
+      "settings.json parses after app quit",
+      afterQuit.value !== undefined,
+      afterQuit.error || "",
+    );
     ctx.check(
       "no settings temp file remains after app quit",
       settingsTempLeftovers(userDataDir).length === 0,

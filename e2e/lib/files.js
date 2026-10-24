@@ -27,6 +27,14 @@ function findFiles(dir, pattern) {
   return found;
 }
 
+// yt-dlp names a generic-extractor download "<title> [<id>].<ext>", where the
+// id is the URL basename without extension. Used to predict on-disk names.
+function ytdlpOutputName(fileName) {
+  const ext = path.extname(fileName);
+  const stem = path.basename(fileName, ext);
+  return `${stem} [${stem}]${ext}`;
+}
+
 function sameRealPath(a, b) {
   try {
     return fs.realpathSync(a) === fs.realpathSync(b);
@@ -35,4 +43,4 @@ function sameRealPath(a, b) {
   }
 }
 
-module.exports = { sha256File, findFiles, sameRealPath };
+module.exports = { sha256File, findFiles, sameRealPath, ytdlpOutputName };

@@ -9,6 +9,11 @@ files:
   # yt-dlp binaries are NOT in files — they are copied per-platform via extraResources
 directories:
   output: release
+electronFuses:
+  runAsNode: false
+  enableNodeOptionsEnvironmentVariable: false
+  enableNodeCliInspectArguments: false
+  resetAdHocDarwinSignature: true
 publish:
   provider: github
   owner: BurntToasters

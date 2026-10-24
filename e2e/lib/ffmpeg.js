@@ -3,12 +3,7 @@ const path = require("path");
 const { spawnSync } = require("child_process");
 const { sha256File } = require("./files");
 
-const COMMON_ARGS = [
-  "-hide_banner",
-  "-loglevel",
-  "error",
-  "-y",
-];
+const COMMON_ARGS = ["-hide_banner", "-loglevel", "error", "-y"];
 
 const ENCODE_ARGS = [
   "-c:v",
@@ -37,7 +32,9 @@ function toolVersion(tool) {
     );
   }
   if (result.status !== 0) {
-    throw new Error(`${tool} -version failed: ${result.stderr || result.error}`);
+    throw new Error(
+      `${tool} -version failed: ${result.stderr || result.error}`,
+    );
   }
   return result.stdout.split("\n")[0].trim();
 }

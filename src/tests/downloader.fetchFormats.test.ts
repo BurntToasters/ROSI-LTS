@@ -2,20 +2,30 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { EventEmitter } from "events";
 import type { WebContents } from "electron";
 
-const { existsSyncMock, statSyncMock, mkdirSyncMock, spawnWithEnvMock } =
-  vi.hoisted(() => {
-    return {
-      existsSyncMock: vi.fn(),
-      statSyncMock: vi.fn(),
-      mkdirSyncMock: vi.fn(),
-      spawnWithEnvMock: vi.fn(),
-    };
-  });
+const {
+  existsSyncMock,
+  statSyncMock,
+  mkdirSyncMock,
+  readFileSyncMock,
+  unlinkSyncMock,
+  spawnWithEnvMock,
+} = vi.hoisted(() => {
+  return {
+    existsSyncMock: vi.fn(),
+    statSyncMock: vi.fn(),
+    mkdirSyncMock: vi.fn(),
+    readFileSyncMock: vi.fn(),
+    unlinkSyncMock: vi.fn(),
+    spawnWithEnvMock: vi.fn(),
+  };
+});
 
 vi.mock("fs", () => ({
   existsSync: existsSyncMock,
   statSync: statSyncMock,
   mkdirSync: mkdirSyncMock,
+  readFileSync: readFileSyncMock,
+  unlinkSync: unlinkSyncMock,
 }));
 
 vi.mock("../main/platform", () => ({
@@ -74,13 +84,13 @@ import {
 
 function createProc() {
   const proc = new EventEmitter() as EventEmitter & {
-    stdout: EventEmitter;
-    stderr: EventEmitter;
+    stdout: EventEmitter & { setEncoding: () => void };
+    stderr: EventEmitter & { setEncoding: () => void };
     kill: () => void;
     killed: boolean;
   };
-  proc.stdout = new EventEmitter();
-  proc.stderr = new EventEmitter();
+  proc.stdout = Object.assign(new EventEmitter(), { setEncoding: vi.fn() });
+  proc.stderr = Object.assign(new EventEmitter(), { setEncoding: vi.fn() });
   proc.killed = false;
   proc.kill = vi.fn(() => {
     proc.killed = true;
@@ -101,6 +111,7 @@ describe("downloader format fetch", () => {
     vi.clearAllMocks();
     existsSyncMock.mockReturnValue(true);
     statSyncMock.mockReturnValue({ isDirectory: () => true });
+    readFileSyncMock.mockReturnValue("");
   });
 
   afterEach(() => {
@@ -255,8 +266,8 @@ describe("downloader format fetch", () => {
       null,
     );
 
+    readFileSyncMock.mockReturnValue("/tmp/downloads/video.mp4\n");
     proc.stdout.emit("data", "[download] 10%\n");
-    proc.stdout.emit("data", "/tmp/downloads/video.mp4\n");
     proc.emit("close", 0);
 
     expect(send).toHaveBeenCalledWith(
@@ -287,7 +298,7 @@ describe("downloader format fetch", () => {
       null,
     );
 
-    proc.stdout.emit("data", "/tmp/new-downloads/video.mp4\n");
+    readFileSyncMock.mockReturnValue("/tmp/new-downloads/video.mp4\n");
     proc.emit("close", 0);
     expect(mkdirSyncMock).toHaveBeenCalledWith(
       expect.stringContaining("new-downloads"),

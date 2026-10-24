@@ -3,6 +3,7 @@ import {
   BrowserWindow,
   ipcMain,
   dialog,
+  session,
   shell,
   Notification,
 } from "electron";
@@ -46,10 +47,19 @@ import type { DownloadRequestOptions } from "../types";
 
 log.initialize();
 
+// Set by the E2E runner so macOS launches stay in the background.
+const e2eBackground =
+  !app.isPackaged &&
+  process.platform === "darwin" &&
+  process.env.ROSI_LTS_E2E_BACKGROUND === "1";
+if (e2eBackground) app.setActivationPolicy("accessory");
+
 let ytdlpPath = "";
 
 let mainWindow: BrowserWindow | null = null;
 let splashWindow: BrowserWindow | null = null;
+
+const rendererDir = path.join(__dirname, "..", "..", "src", "renderer");
 
 function getMainWindow() {
   return mainWindow;
@@ -61,11 +71,13 @@ function createSplashWindow() {
     height: 360,
     transparent: true,
     frame: false,
-    alwaysOnTop: true,
+    alwaysOnTop: !e2eBackground,
+    show: !e2eBackground,
     icon: path.join(__dirname, "..", "..", "src", "renderer", "app.png"),
     webPreferences: {
       contextIsolation: true,
       nodeIntegration: false,
+      sandbox: true,
     },
     roundedCorners: true,
   });
@@ -92,6 +104,8 @@ function createWindow() {
       nodeIntegration: false,
       spellcheck: false,
       devTools: isDev,
+      backgroundThrottling: !e2eBackground,
+      sandbox: true,
     },
     autoHideMenuBar: !isDev,
     show: false,
@@ -110,7 +124,7 @@ function createWindow() {
   });
 
   mainWindow.webContents.on("will-navigate", (event, url) => {
-    if (!isAllowedNavigationUrl(url)) {
+    if (!isAllowedNavigationUrl(url, rendererDir)) {
       event.preventDefault();
       if (isSafeExternalUrl(url)) {
         shell.openExternal(url).catch((err) => {
@@ -134,14 +148,40 @@ function createWindow() {
         splashWindow = null;
       }
       if (mainWindow && !mainWindow.isDestroyed()) {
-        mainWindow.show();
-        mainWindow.focus();
+        if (e2eBackground) {
+          mainWindow.setOpacity(0);
+          mainWindow.setIgnoreMouseEvents(true);
+          mainWindow.setFocusable(false);
+          mainWindow.showInactive();
+        } else {
+          mainWindow.show();
+          mainWindow.focus();
+        }
       }
     }, SPLASH_FADE_DELAY_MS);
   });
 }
 
+// Deny every renderer permission request and check. Notifications are shown
+// by the main-process Notification class, which these handlers do not affect.
+function configureSessionSecurity() {
+  session.defaultSession.setPermissionRequestHandler(
+    (_webContents, _permission, callback) => callback(false),
+  );
+  session.defaultSession.setPermissionCheckHandler(() => false);
+}
+
+// Applies to every window and webview. The main window sets its own
+// window-open handler after this runs, which replaces the deny default.
+app.on("web-contents-created", (_event, contents) => {
+  contents.on("will-attach-webview", (event) => {
+    event.preventDefault();
+  });
+  contents.setWindowOpenHandler(() => ({ action: "deny" as const }));
+});
+
 void app.whenReady().then(async () => {
+  configureSessionSecurity();
   ytdlpPath = await initializeYtdlpPath();
   if (!fs.existsSync(ytdlpPath)) {
     dialog.showErrorBox(
@@ -362,7 +402,7 @@ ipcMain.handle("show-notification", (_, options) => {
 
     notification.on("click", () => {
       try {
-        if (mainWindow && !mainWindow.isDestroyed()) {
+        if (mainWindow && !mainWindow.isDestroyed() && !e2eBackground) {
           if (mainWindow.isMinimized()) mainWindow.restore();
           mainWindow.focus();
         }

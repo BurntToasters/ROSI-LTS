@@ -10,9 +10,11 @@ module.exports = {
     const before = page.url();
 
     // Navigation tears down the page context, so the evaluate may throw.
-    await page.evaluate(() => {
-      location.href = "file:///etc/hosts";
-    }).catch(() => {});
+    await page
+      .evaluate(() => {
+        location.href = "file:///etc/hosts";
+      })
+      .catch(() => {});
     await sleep(3000);
 
     const after = page.url();

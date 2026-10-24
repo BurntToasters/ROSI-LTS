@@ -13,7 +13,9 @@ const SETTLE_MS = 6000;
 const PROGRESS = /\[download\]\s+\d+(\.\d+)?%/;
 
 function describe(processes) {
-  return processes.map((proc) => `pid ${proc.pid}: ${proc.command.slice(0, 160)}`).join(" | ");
+  return processes
+    .map((proc) => `pid ${proc.pid}: ${proc.command.slice(0, 160)}`)
+    .join(" | ");
 }
 
 module.exports = {
@@ -33,11 +35,25 @@ module.exports = {
     await waitForProgress(page, PROGRESS, 60_000);
     ctx.note(`phase 1 progress: ${await findProgressLine(page, "[download]")}`);
 
+    // Positive control: the process must be visible to ps before we cancel,
+    // otherwise an empty survivor list proves nothing.
+    const running = findProcessesWithTokens([cancelToken]);
+    ctx.check(
+      "yt-dlp is running before cancel (positive control)",
+      running.length > 0,
+      describe(running) || "none",
+    );
+    ctx.note(`phase 1 processes before cancel: ${running.length}`);
+
     // The download button cannot start a download on the current code (F10),
     // so the cancel request goes through the same IPC the button uses.
     await page.evaluate(() => window.api.cancelDownload());
     const cancelStatus = await waitForCompletion(page, beforeCancel, 30_000);
-    ctx.check("cancel reports Cancelled", /Cancelled/.test(cancelStatus), cancelStatus);
+    ctx.check(
+      "cancel reports Cancelled",
+      /Cancelled/.test(cancelStatus),
+      cancelStatus,
+    );
 
     await sleep(SETTLE_MS);
     const survivorsAfterCancel = findProcessesWithTokens([cancelToken]);
@@ -56,6 +72,14 @@ module.exports = {
       outputPath: quitSession.downloadDir,
     });
     await waitForProgress(quitSession.page, PROGRESS, 60_000);
+    const quitRunning = findProcessesWithTokens([quitToken]);
+    ctx.check(
+      "yt-dlp is running before quit (positive control)",
+      quitRunning.length > 0,
+      describe(quitRunning) || "none",
+    );
+    ctx.note(`phase 2 processes before quit: ${quitRunning.length}`);
+    await ctx.screenshot();
     await closeApp(quitSession);
 
     await sleep(SETTLE_MS);

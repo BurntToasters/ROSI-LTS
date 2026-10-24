@@ -10,6 +10,7 @@ const { startFixtureServer } = require("./lib/fixtureServer");
 const { sha256File, findFiles } = require("./lib/files");
 const {
   launchApp,
+  resolveBackgroundMode,
   closeApp,
   withTimeout,
   completionCount,
@@ -35,7 +36,11 @@ function ytdlpBinaryPath() {
     linux: "yt-dlp_linux",
     win32: "yt-dlp.exe",
   };
-  return path.join(REPO_ROOT, "assets", names[process.platform] || "yt-dlp_linux");
+  return path.join(
+    REPO_ROOT,
+    "assets",
+    names[process.platform] || "yt-dlp_linux",
+  );
 }
 
 // yt-dlp's bundled binary is only made executable by the app at startup.
@@ -49,11 +54,16 @@ function ytdlpVersion(runRoot) {
 
 function macOsVersion() {
   if (process.platform !== "darwin") return "";
-  return execFileSync("sw_vers", ["-productVersion"], { encoding: "utf8" }).trim();
+  return execFileSync("sw_vers", ["-productVersion"], {
+    encoding: "utf8",
+  }).trim();
 }
 
 function collectEnvironment(runRoot, tools) {
+  const background = resolveBackgroundMode();
   return {
+    backgroundMode: background.enabled ? "on" : "off",
+    backgroundReason: background.reason,
     os: `${process.platform} ${os.release()}${macOsVersion() ? ` (macOS ${macOsVersion()})` : ""}`,
     arch: process.arch,
     nodeVersion: process.version,
@@ -68,10 +78,15 @@ function collectEnvironment(runRoot, tools) {
 
 function loadSpecs() {
   const specs = [];
-  for (const file of fs.readdirSync(SPECS_DIR).filter((f) => f.endsWith(".js")).sort()) {
+  for (const file of fs
+    .readdirSync(SPECS_DIR)
+    .filter((f) => f.endsWith(".js"))
+    .sort()) {
     const spec = require(path.join(SPECS_DIR, file));
     if (!spec.id || !spec.title || typeof spec.run !== "function") {
-      throw new Error(`Spec ${file} must export { id, title, failureModes, run }.`);
+      throw new Error(
+        `Spec ${file} must export { id, title, failureModes, run }.`,
+      );
     }
     specs.push(spec);
   }
@@ -114,7 +129,11 @@ function createContext(spec, shared) {
       return full;
     },
     check(label, passed, detail = "") {
-      ctx.checks.push({ label, passed: Boolean(passed), detail: String(detail) });
+      ctx.checks.push({
+        label,
+        passed: Boolean(passed),
+        detail: String(detail),
+      });
       return Boolean(passed);
     },
     // Runs `fn` and records any thrown error as a failed check, so later
@@ -148,11 +167,13 @@ function createContext(spec, shared) {
       ctx.sessions.push(session);
       ctx.currentPage = session.page;
       ctx.notes.push(
-        `launch ${launchCount}: userData honored=${session.userDataHonored} (${session.userDataDir})`,
+        `launch ${launchCount}: userData honored=${session.userDataHonored}, background=${session.backgroundMode.enabled} (${session.userDataDir})`,
       );
       return session;
     },
+    // Captured once per spec; a spec may call it early, before closing its app.
     async screenshot() {
+      if (ctx.screenshotFile) return ctx.screenshotFile;
       if (!ctx.currentPage) return null;
       const file = path.join(ARTIFACTS_DIR, `${spec.id}.png`);
       try {
@@ -161,6 +182,7 @@ function createContext(spec, shared) {
           15_000,
           "screenshot timed out",
         );
+        ctx.screenshotFile = file;
         return file;
       } catch (error) {
         ctx.notes.push(`screenshot failed: ${error.message}`);
@@ -204,7 +226,9 @@ async function runSpec(spec, shared) {
   await ctx.closeAll();
   killProcessesWithTokens(ctx.tokens);
 
-  const failures = ctx.checks.filter((c) => !c.passed).map((c) => `${c.label}: ${c.detail}`);
+  const failures = ctx.checks
+    .filter((c) => !c.passed)
+    .map((c) => `${c.label}: ${c.detail}`);
   if (thrown) failures.push(thrown.message);
   const durationMs = Date.now() - started;
   return {
@@ -262,8 +286,13 @@ async function main() {
       const result = await runSpec(spec, shared);
       specResults.push(result);
       const verdict = result.passed ? "PASS" : "FAIL";
-      console.log(`[${verdict}] ${spec.id} ${spec.title} (${(result.durationMs / 1000).toFixed(1)} s)`);
-      if (!result.passed) console.log(`       ${result.failureMessage.split("\n").join("\n       ")}`);
+      console.log(
+        `[${verdict}] ${spec.id} ${spec.title} (${(result.durationMs / 1000).toFixed(1)} s)`,
+      );
+      if (!result.passed)
+        console.log(
+          `       ${result.failureMessage.split("\n").join("\n       ")}`,
+        );
     }
   } finally {
     if (server) await server.close().catch(() => {});

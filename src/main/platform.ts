@@ -51,7 +51,13 @@ export function spawnWithEnv(
   const baseEnv = (options.env as Record<string, string> | undefined) || {};
   return spawn(command, args, {
     ...options,
-    env: { ...process.env, ...baseEnv, PATH: buildEnhancedPath() },
+    env: {
+      ...process.env,
+      ...baseEnv,
+      PYTHONUTF8: "1",
+      PYTHONIOENCODING: "utf-8",
+      PATH: buildEnhancedPath(),
+    },
   } as Parameters<typeof spawn>[2]);
 }
 
